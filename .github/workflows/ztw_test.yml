@@ -1,0 +1,86 @@
+name: ZTW Test
+on:
+  pull_request:
+    types: [opened, synchronize]
+  merge_group:
+    types: [checks_requested]
+  push:
+    branches:
+      - master
+
+  # For systems with an upstream API that could drift unexpectedly (like most SaaS systems, etc.),
+  # we recommend testing at a regular interval not necessarily tied to code changes. This will
+  # ensure you are alerted to something breaking due to an API change, even if the code did not
+  # change.
+
+  schedule:
+    - cron: '0 13 * * 1-5' # UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+
+  ztw-zs3tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        goVersion: ["1.24"]
+        environment:
+          - ZTW_ZS3
+    environment: ${{ matrix.environment }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.goVersion }}
+
+      - name: Set Go env
+        run: |
+          echo "GOPATH=$(go env GOPATH)" >> $GITHUB_ENV
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Setup Go Tools
+        run: make tools
+
+      - name: Download Go Dependencies
+        run: |
+          go mod tidy && go mod vendor
+
+      - name: Setup Go Tools
+        run: make tools
+
+      - name: Check Formatting
+        run: make fmtcheck
+
+      # - name: Vet Code
+      #   run: make vet
+
+      - name: Lint Code
+        run: make lint
+
+      - name: Check Build
+        run: make build
+
+      - name: Run tests with retry on Ubuntu
+        uses: nick-fields/retry@v3
+        with:
+          max_attempts: 3
+          timeout_minutes: 120
+          command: |
+            make sweep
+            make test:integration:ztw
+            make sweep
+        env:
+          ZSCALER_CLIENT_ID: ${{ secrets.ZSCALER_CLIENT_ID }}
+          ZSCALER_CLIENT_SECRET: ${{ secrets.ZSCALER_CLIENT_SECRET }}
+          ZSCALER_VANITY_DOMAIN: ${{ secrets.ZSCALER_VANITY_DOMAIN }}
+          ZSCALER_CLOUD: ${{ secrets.ZSCALER_CLOUD }}
+          TF_ACC: ${{ secrets.TF_ACC }}
+          ZTW_ACC_TEST_FORCE_SWEEPERS: ${{ secrets.ZTW_ACC_TEST_FORCE_SWEEPERS }}

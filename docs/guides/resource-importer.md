@@ -1,0 +1,825 @@
+---
+page_title: "Resource Importer"
+---
+
+# Zscaler Terraformer Tool
+
+## Support Disclaimer
+
+-> **Disclaimer:** Please refer to our [General Support Statement](docs/guides/support.md) before proceeding with the use of this provider. You can also refer to our [troubleshooting guide](docs/guides/troubleshooting.md) for guidance on typical problems.
+
+## Overview
+
+`zscaler-terraformer` is A CLI tool that generates ``tf`` and ``tfstate`` files based on existing ZPA and/or ZIA resources.
+It does this by using your respective API credentials in each platform to retrieve your configurations from the [ZPA API](https://help.zscaler.com/zpa/getting-started-zpa-api) and/or [ZIA API](https://help.zscaler.com/zia/getting-started-zia-api) and converting them to Terraform configurations so that it can be used with the
+[ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest) and/or [ZIA Terraform Provider](https://registry.terraform.io/providers/zscaler/ztw/latest)
+
+This tool is ideal if you already have ZPA and/or ZIA resources defined but want to
+start managing them via Terraform, and don't want to spend the time to manually
+write the Terraform configuration to describe them.
+
+> NOTE: This tool has been developed and tested with Terraform v1.x.x only.
+
+[![Zscaler Terraformer Migration Tool](https://raw.githubusercontent.com/zscaler/zscaler-terraformer/master/images/zscaler_terraformer.svg)](https://fast.wistia.net/embed/channel/07fhl9bbvr?wchannelid=07fhl9bbvr&wvideoid=sfd7h33q2e)
+
+## Zscaler - OneAPI Authentication New Framework
+
+As of version v4.0.0, this provider supports authentication via the new Zscaler API framework [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi)
+
+Zscaler OneAPI uses the OAuth 2.0 authorization framework to provide secure access to Zscaler Zero Trust Workload (ZTW) APIs. OAuth 2.0 allows third-party applications to obtain controlled access to protected resources using access tokens. OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token and obtain access to the API resources, without any user authentication involved in the process.
+
+**NOTE** As of version v2.0.0, Zscaler-Terraformer offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
+
+**NOTE** Notice that OneAPI and Zidentity is NOT currently supported for the following ZIA/ZTW and ZPA clouds respectively: `zscalergov` and `zscalerten` or `GOV` and `GOVUS`. Refer to the [Legacy API Framework](#legacy-api-framework) for more information on how authenticate to these environments
+
+``zscaler-terraformer`` for ZPA supports the following environment variables:
+
+## Authentication
+
+Both ZPA, ZIA and ZTW follow its respective authentication methods as described in the Terraform registry documentation:
+
+* [ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest/docs)
+* [ZIA Terraform Provider](https://registry.terraform.io/providers/zscaler/zia/latest/docs)
+* [ZTW Terraform Provider](https://registry.terraform.io/providers/zscaler/ztw/latest/docs)
+
+For details on how to generate API credentials visit:
+
+* ZPA [Getting Started](https://help.zscaler.com/zpa/getting-started-zpa-api)
+* ZIA [Getting Started](https://help.zscaler.com/zia/getting-started-zia-api)
+* ZTW [Getting Started](https://help.zscaler.com/cloud-branch-connector/getting-started-cloud-branch-connector-api)
+
+!> **A note on storing your credentials securely**: We recommend that you store
+your ZPA, ZIA and/or ZTW credentials as environment variables as
+demonstrated below.
+
+## Examples Usage - ZPA OneAPI Client Secret Authentication (Environment Variables)
+
+```bash
+export ZSCALER_CLIENT_ID      = "xxxxxxxxxxxxxxxx"
+export ZSCALER_CLIENT_SECRET  = "xxxxxxxxxxxxxxxx"
+export ZSCALER_VANITY_DOMAIN  = "xxxxxxxxxxxxxxxx"
+export ZPA_CUSTOMER_ID        = "xxxxxxxxxxxxxxxx"
+export ZSCALER_CLOUD          = "beta" ## Optional for alternative clouds
+```
+
+## Examples Usage - ZPA OneAPI Client Secret Authentication (Inline Authenticatiion)
+
+```bash
+zscaler-terraformer import \
+--resources="zpa" \
+--client_id="xxxxxxxxxxxxxxxx" \
+--client_secret="xxxxxxxxxxxxxxxx" \
+--vanity_domain="xxxxxxxxxxxxxxxx" \
+--customer_id="xxxxxxxxxxxxxxxx" \
+--zscaler_cloud="beta" ## Optional for alternative clouds
+```
+
+## Examples Usage - ZIA OneAPI Client Secret Authentication (Environment Variables)
+
+```bash
+export ZSCALER_CLIENT_ID      = "xxxxxxxxxxxxxxxx"
+export ZSCALER_CLIENT_SECRET  = "xxxxxxxxxxxxxxxx"
+export ZSCALER_VANITY_DOMAIN  = "xxxxxxxxxxxxxxxx"
+export ZSCALER_CLOUD          = "beta" ## Optional for alternative clouds
+```
+
+## Examples Usage - ZIA OneAPI Client Secret Authentication (Inline Authenticatiion)
+
+```bash
+zscaler-terraformer import \
+--resources="zia" \
+--client_id="xxxxxxxxxxxxxxxx" \
+--client_secret="xxxxxxxxxxxxxxxx" \
+--vanity_domain="xxxxxxxxxxxxxxxx" \
+--zscaler_cloud="beta" ## Optional for alternative clouds
+```
+
+### Default Environment variables
+
+You can provide credentials via the `ZSCALER_CLIENT_ID`, `ZSCALER_CLIENT_SECRET`, `ZSCALER_VANITY_DOMAIN`, `ZSCALER_CLOUD` environment variables, representing your Zidentity OneAPI credentials `clientId`, `clientSecret`, `vanityDomain` and `cloud` respectively.
+
+| Argument        | Description                                                                                         | Environment Variable     |
+|-----------------|-----------------------------------------------------------------------------------------------------|--------------------------|
+| `client_id`     | _(String)_ Zscaler API Client ID, used with `clientSecret` or `PrivateKey` OAuth auth mode.         | `ZSCALER_CLIENT_ID`      |
+| `client_secret` | _(String)_ Secret key associated with the API Client ID for authentication.                         | `ZSCALER_CLIENT_SECRET`  |
+| `privateKey`    | _(String)_ A string Private key value.                                                              | `ZSCALER_PRIVATE_KEY`    |
+| `customer_id`   | _(String)_ A string that contains the ZPA customer ID which identifies the tenant                   | `ZPA_CUSTOMER_ID`    |
+| `microtenant_id`| _(String)_ A string that contains the ZPA microtenant ID which identifies the tenant                | `ZPA_MICROTENANT_ID`    |
+| `vanity_domain` | _(String)_ Refers to the domain name used by your organization.                                     | `ZSCALER_VANITY_DOMAIN`  |
+| `cloud`         | _(String)_ The name of the Zidentity cloud, e.g., beta.                                             | `ZSCALER_CLOUD`          |
+
+### Alternative OneAPI Cloud Environments
+
+OneAPI supports authentication and can interact with alternative Zscaler enviornments i.e `beta`. To authenticate to these environments you must provide the following values:
+
+| Argument         | Description                                                                                         |   | Environment Variable     |
+|------------------|-----------------------------------------------------------------------------------------------------|---|--------------------------|
+| `vanity_domain`   | _(String)_ Refers to the domain name used by your organization |   | `ZSCALER_VANITY_DOMAIN`  |
+| `cloud`          | _(String)_ The name of the Zidentity cloud i.e beta      |   | `ZSCALER_CLOUD`          |
+
+For example: Authenticating to Zscaler Beta environment:
+
+```sh
+export ZSCALER_VANITY_DOMAIN="acme"
+export ZSCALER_CLOUD="beta"
+```
+
+### OneAPI (API Client Scope)
+
+OneAPI Resources are automatically created within the ZIdentity Admin UI based on the RBAC Roles
+applicable to APIs within the various products. For example, in ZIA, navigate to `Administration -> Role
+Management` and select `Add API Role`.
+
+Once this role has been saved, return to the ZIdentity Admin UI and from the Integration menu
+select API Resources. Click the `View` icon to the right of Zscaler APIs and under the ZIA
+dropdown you will see the newly created Role. In the event a newly created role is not seen in the
+ZIdentity Admin UI a `Sync Now` button is provided in the API Resources menu which will initiate an
+on-demand sync of newly created roles.
+
+## Legacy API Framework
+
+### ZPA Environment Variables
+
+* As of version v2.0.0, Zscaler Terraformer offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
+
+**NOTE** The use of of the attribute `use_legacy_client` is mandatory when not authenticating through OneAPI.
+
+``zscaler-terraformer`` for ZPA supports the following environment variables:
+
+```bash
+export ZPA_CLIENT_ID      = "xxxxxxxxxxxxxxxx"
+export ZPA_CLIENT_SECRET  = "xxxxxxxxxxxxxxxx"
+export ZPA_CUSTOMER_ID    = "xxxxxxxxxxxxxxxx"
+export ZPA_CLOUD          = "BETA", "GOV", "GOVUS", "PRODUCTION" or "ZPATWO"
+export ZSCALER_USE_LEGACY_CLIENT=true
+```
+
+### ZPA Inline Authentication
+
+```bash
+zscaler-terraformer import --resources="zpa" \
+--zpa_client_id="xxxxxxxxxxxxxxxx" \
+--zpa_client_secret="xxxxxxxxxxxxxxxx" \
+--zpa_customer_id="xxxxxxxxxxxxxxxx" \
+--zpa_cloud="BETA", "GOV", "GOVUS", "PRODUCTION" or "ZPATWO" \
+--use_legacy_client=true
+```
+
+### ZPA Environment variables (Legacy)
+
+You can provide credentials via the `ZPA_CLIENT_ID`, `ZPA_CLIENT_SECRET`, `ZPA_CUSTOMER_ID`, `ZPA_CLOUD` environment variables, representing your ZPA `client_id`, `client_secret`, `customer_id` and `cloud` of your ZPA account, respectively.
+
+~> **NOTE** `ZPA_CLOUD` environment variable is required, and is used to identify the correct API gateway where the API requests should be forwarded to.
+
+| Argument     | Description | Environment variable |
+|--------------|-------------|-------------------|
+| `client_id`       | _(String)_ The ZPA API client ID generated from the ZPA console.| `ZPA_CLIENT_ID` |
+| `client_secret`       | _(String)_ The ZPA API client secret generated from the ZPA console.| `ZPA_CLIENT_SECRET` |
+| `customer_id`       | _(String)_ The ZPA tenant ID found in the Administration > Company menu in the ZPA console.| `ZPA_CUSTOMER_ID` |
+| `cloud`       | _(String)_ The Zscaler cloud for your tenancy.| `ZPA_CLOUD` |
+| `use_legacy_client`       | _(Bool)_ Enable use of the legacy ZIA API Client.| `ZSCALER_USE_LEGACY_CLIENT` |
+
+### ZIA Environment Variables (Legacy)
+
+* As of version v2.0.0, Zscaler Terraformer offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
+
+**NOTE** The use of of the attribute `use_legacy_client` is mandatory when not authenticating through OneAPI.
+
+``zscaler-terraformer`` for ZIA supports the following environment variables:
+
+```bash
+export ZIA_USERNAME = "xxxxxxxxxxxxxxxx"
+export ZIA_PASSWORD = "xxxxxxxxxxxxxxxx"
+export ZIA_API_KEY  = "xxxxxxxxxxxxxxxx"
+export ZIA_CLOUD    = "xxxxxxxxxxxxxxxx" (i.e zscalerthree)
+export ZSCALER_USE_LEGACY_CLIENT=true
+```
+
+### ZIA Inline Authentication
+
+```bash
+zscaler-terraformer import --resources="zia" \
+--zia_username="xxxxxxxxxxxxxxxx" \
+--zia_password="xxxxxxxxxxxxxxxx" \
+--zia_api_key="xxxxxxxxxxxxxxxx" \
+--zia_cloud=(i.e zscalerthree) \
+--use_legacy_client=true
+```
+
+### ZIA Environment variables (Legacy)
+
+You can provide credentials via the `ZIA_USERNAME`, `ZIA_PASSWORD`, `ZIA_API_KEY`, `ZIA_CLOUD` environment variables, representing your ZIA `username`, `password`, `api_key` and `cloud` respectively.
+
+| Argument     | Description | Environment variable |
+|--------------|-------------|-------------------|
+| `username`       | _(String)_ A string that contains the email ID of the API admin.| `ZIA_USERNAME` |
+| `password`       | _(String)_ A string that contains the password for the API admin.| `ZIA_PASSWORD` |
+| `api_key`       | _(String)_ A string that contains the obfuscated API key (i.e., the return value of the obfuscateApiKey() method).| `ZIA_API_KEY` |
+| `cloud`       | _(String)_ The host and basePath for the cloud services API is `$zsapi.<Zscaler Cloud Name>/api/v1`.| `ZIA_CLOUD` |
+| `use_legacy_client`       | _(Bool)_ Enable use of the legacy ZIA API Client.| `ZSCALER_USE_LEGACY_CLIENT` |
+
+## Usage
+
+### Version Information
+
+To check the version of zscaler-terraformer, you can use either of these commands:
+
+```bash
+# Display version information (recommended)
+zscaler-terraformer --version
+
+# Alternative: Use the version command
+zscaler-terraformer version
+```
+
+Both commands will display:
+- Zscaler Terraformer version
+- Terraform version (if installed)
+- Platform information
+- Update notifications (if a newer version is available)
+
+```bash
+Usage:
+  zscaler-terraformer [flags] [command]
+
+Available Commands:
+  completion  Generate the autocompletion script for the specified shell
+  generate    Fetch resources from the ZPA and ZIA API and generate the respective Terraform stanzas
+  help        Help about any command
+  import      Output `terraform import` compatible commands in order to import resources into state
+  version     Print the version number of zscaler-terraformer
+
+Enhanced Flags:
+  --support       Display regional Zscaler support contact information
+  --collect-logs  Enable SDK debug logging for troubleshooting
+  --validate      Run terraform validation on generated files
+  --progress      Show colored progress bar during operations (default: enabled)
+  --no-progress   Disable progress bar and show detailed scrolling output
+  --prefix        Custom prefix for terraform resource names
+
+Flags:
+      --client_id string                    OneAPI client_id (required in V3 mode)
+      --client_secret string                OneAPI client_secret (required in V3 mode)
+      --customer_id string                  OneAPI optional customer_id
+      --exclude string                      Which resources you wish to exclude
+  -h, --help                                Show help for zscaler-terraformer
+      --microtenant_id string               OneAPI optional microtenant_id
+      --resource-type string                Which resource you wish to generate
+      --resources string                    Which resources you wish to import
+      --supported-resources string          List supported resources for ZPA or ZIA
+      --terraform-install-path string       Path to the default Terraform installation (default ".")
+      --use_legacy_client                   Enable Legacy Mode (true/false)
+      --vanity_domain string                OneAPI vanity_domain (required in V3 mode)
+  -v, --verbose                             Enable verbose debug output
+      --version                             Display the release version
+      --zia-provider-namespace string       Custom namespace for the ZIA provider
+      --zia-terraform-install-path string   Path to the ZIA Terraform installation (default ".")
+      --zia_api_key string                  ZIA legacy api_key (required)
+      --zia_cloud string                    ZIA Cloud environment (required for ZIA legacy, e.g. zscalerthree)
+      --zia_password string                 ZIA legacy password (required)
+      --zia_username string                 ZIA legacy username (required if using legacy mode for ZIA resources)
+      --zpa-provider-namespace string       Custom namespace for the ZPA provider
+      --zpa-terraform-install-path string   Path to the ZPA Terraform installation (default ".")
+      --zpa_client_id string                ZPA legacy client ID (required if using legacy mode for ZPA resources)
+      --zpa_client_secret string            ZPA legacy client secret
+      --zpa_cloud string                     ZPA Cloud (``BETA``, ``GOV``, ``GOVUS``, ``PRODUCTION``, ``ZPATWO``)
+      --zpa_customer_id string              ZPA legacy customer ID
+      --zpa_microtenant_id string           ZPA legacy microtenant_id (optional)
+      --zscaler_cloud string                OneAPI optional zscaler_cloud (e.g. PRODUCTION)
+
+Use "zscaler-terraformer [command] --help" for more information about a command.
+```
+
+## Automatic Resource and Data Source Reference Mapping
+
+The Zscaler Terraformer automatically replaces hard-coded IDs in resource attributes with readable resource references or data source references, making the generated Terraform code more maintainable and user-friendly.
+
+### How It Works
+
+**Before (Hard-coded IDs):**
+```hcl
+resource "zia_firewall_filtering_rule" "example" {
+  action = "ALLOW"
+  name   = "My Firewall Rule"
+  device_groups {
+    id = [35235179]
+  }
+  location_groups {
+    id = [66754722, 66754723]
+  }
+  users {
+    id = [29309057]
+  }
+  workload_groups {
+    id   = 2665545
+    name = "BD_WORKLOAD_GROUP01"
+  }
+}
+```
+
+**After (Intelligent Reference Resolution):**
+```hcl
+resource "zia_firewall_filtering_rule" "example" {
+  action = "ALLOW"
+  name   = "My Firewall Rule"
+  # Resource references (when resources were imported)
+  dlp_engines {
+    id = [zia_dlp_engines.resource_zia_dlp_engines_3.id]
+  }
+  locations {
+    id = [zia_location_management.resource_zia_location_management_36788941.id]
+  }
+  # Data source references (when resources were not imported)
+  device_groups {
+    id = [data.zia_device_groups.this_35235179.id]
+  }
+  location_groups {
+    id = [data.zia_location_groups.this_66754722.id, data.zia_location_groups.this_66754723.id]
+  }
+  users {
+    id = [data.zia_user_management.this_29309057.id]
+  }
+  workload_groups {
+    id   = data.zia_workload_groups.this_2665545.id
+    name = data.zia_workload_groups.this_2665545.name
+  }
+}
+```
+
+**Generated Data Sources:**
+```hcl
+# datasource.tf - automatically generated
+data "zia_device_groups" "this_35235179" {
+  id = 35235179
+}
+
+data "zia_location_groups" "this_66754722" {
+  id = 66754722
+}
+
+data "zia_user_management" "this_29309057" {
+  id = 29309057
+}
+
+data "zia_workload_groups" "this_2665545" {
+  id   = 2665545
+  name = "BD_WORKLOAD_GROUP01"
+}
+```
+
+### Supported Attribute Mappings
+
+The following attributes are automatically replaced with data source references:
+
+| Attribute Name | Data Source Type | Description |
+|----------------|------------------|-------------|
+| `location_groups` | `zia_location_groups` | Location group references |
+| `time_windows` | `zia_firewall_filtering_time_window` | Time window references |
+| `users` | `zia_user_management` | User references |
+| `groups` | `zia_group_management` | Group references |
+| `departments` | `zia_department_management` | Department references |
+| `proxy_gateways` | `zia_forwarding_control_proxy_gateway` | Proxy gateway references |
+| `device_groups` | `zia_device_groups` | Device group references |
+| `devices` | `zia_devices` | Device references |
+| `workload_groups` | `zia_workload_groups` | Workload group references (includes both `id` and `name`) |
+| `nw_services` | `zia_firewall_filtering_network_service` | Network service references |
+| `services` | `zia_firewall_filtering_network_service` | Network service references |
+| `source_ip_groups` | `zia_firewall_filtering_ip_source_groups` | Source IP group references |
+| `src_ip_groups` | `zia_firewall_filtering_ip_source_groups` | Source IP group references |
+| `dest_ip_groups` | `zia_firewall_filtering_destination_groups` | Destination IP group references |
+| `destination_groups` | `zia_firewall_filtering_destination_groups` | Destination IP group references |
+| `nw_application_groups` | `zia_firewall_filtering_network_application_groups` | Network application group references |
+| `nw_service_groups` | `zia_firewall_filtering_network_service_groups` | Network service group references |
+| `labels` | `zia_rule_labels` | Rule label references |
+| `app_connector_groups` | `zpa_app_connector_group` | App Connector group references |
+| `server_groups` | `zpa_server_group` | Server group references |
+| `app_server_groups` | `zpa_application_server` | Application server references |
+| `segment_group_id` | `zpa_segment_group` | Segment group references |
+| `applications` | `zpa_application_segment` | Application segment references |
+| `app_segments` | `zpa_application_segment` | Application segment references |
+| `service_edges` | `zpa_service_edge_controller` | Service Edge references |
+| `trusted_networks` | `zpa_trusted_network` | Trusted network references |
+| `pra_portals` | `zpa_pra_portal_controller` | PRA portal references |
+| `pra_applications` | `zpa_application_segment` | PRA application references |
+
+### Key Features
+
+- **🔄 Automatic Processing**: No configuration required - works automatically during import
+- **🎯 Intelligent Resolution**: 
+  - Uses **resource references** (e.g., `zia_dlp_engines.resource_name.id`) when resources were imported
+  - Uses **data source references** (e.g., `data.zia_device_groups.this_123.id`) when resources were not imported
+- **📁 File Generation**: Automatically creates `datasource.tf` with required data sources and `outputs.tf` with resource outputs
+- **⚙️ Special Handling**: `workload_groups` attributes get both `id` and `name` field replacement
+- **🚀 Performance Optimized**: Processes all references once at the end for optimal performance
+- **🛡️ Drift Prevention**: Avoids creating unnecessary data sources that could cause terraform drift
+
+### Benefits
+
+1. **📖 Improved Readability**: Data source references are more descriptive than raw IDs
+2. **🔧 Better Maintainability**: Easier to understand and modify configurations
+3. **🎯 Terraform Best Practices**: Uses proper data source referencing patterns
+4. **⚡ Automatic**: No manual configuration or setup required
+
+### Important Notes
+
+⚠️ **Unmapped Attributes**: Some attributes may not be automatically mapped to their corresponding data source or resource references. This typically occurs when:
+
+- **Resource doesn't exist**: The corresponding terraform resource is not yet available in the provider
+- **Data source doesn't exist**: The corresponding terraform data source is not yet available in the provider  
+- **API not available**: The underlying API for the resource/data source is not yet implemented
+- **Mapping not defined**: The attribute mapping has not been added to the tool's configuration
+
+In these cases, the original hard-coded IDs will remain in the generated HCL files. Users can manually replace these with appropriate references once the corresponding resources or data sources become available in the terraform providers.
+
+## Command Line Flags
+
+The Zscaler Terraformer provides several flags to enhance the import and generation experience:
+
+### Core Operational Flags
+
+#### `--support`
+Display regional Zscaler support contact information with phone numbers organized by region.
+
+```bash
+zscaler-terraformer --support
+```
+
+**Output:** Professional table showing Americas, EMEA, and Asia/Pacific support contacts with direct phone numbers and online resources.
+
+#### `--collect-logs`
+Enable comprehensive SDK debug logging with automatic output capture to timestamped log files. All SDK debug output, API requests, and responses are captured for support analysis.
+
+```bash
+# Enable debug logging for troubleshooting
+zscaler-terraformer --collect-logs import --resources "zpa_segment_group"
+
+# Combine with other flags  
+zscaler-terraformer --collect-logs --progress import --resources "zpa"
+```
+
+**Features:**
+- Creates timestamped debug files (e.g., `debug_20250922_213457.log`) in the working directory
+- Captures all SDK API requests, responses, and debug details
+- Clean console output with debug details in log file
+- Automatic environment cleanup after completion
+
+#### `--validate`
+Automatically run `terraform init` and `terraform validate` on generated HCL files to verify syntax and configuration correctness.
+
+```bash
+# Validate generated files after import
+zscaler-terraformer --validate import --resources "zia_firewall_filtering_rule"
+
+# Validate after generation
+zscaler-terraformer --validate generate --resource-type "zpa_application_segment"
+```
+
+**Features:**
+- Automatic terraform initialization before validation
+- Smart error detection (syntax errors vs provider configuration issues)
+- Helpful error messages with specific fix suggestions
+- Graceful handling of missing provider configurations
+
+#### `--progress` (Default) / `--no-progress`
+By default, zscaler-terraformer displays a colored progress bar with real-time updates during import and generation operations. Use `--no-progress` to show detailed scrolling output instead.
+
+```bash
+# Default behavior (progress bar enabled)
+zscaler-terraformer import --resources "zpa"
+# 🚀 Progress: [████████████████░░░░] 80% (24/30) | Importing zpa_server_group | ETA: 30s
+
+# Disable progress bar for detailed scrolling output
+zscaler-terraformer --no-progress import --resources "zpa"
+# terraform import zpa_policy_access_rule.zpa_policy_access_rule_123 123
+# terraform import zpa_application_segment.zpa_application_segment_456 456
+
+# Combine with verbose for maximum detail
+zscaler-terraformer --no-progress --verbose import --resources "zpa"
+# terraform import zpa_app_connector_group.zpa_app_connector_group_789 789
+# INFO[0001] 🔄 Starting resource reference replacement...
+# INFO[0002] 📋 Collected 17 unique data source IDs...
+```
+
+**Default Progress Bar Features:**
+- Real-time colored progress bar with percentage completion
+- Current task display (e.g., "Importing zpa_application_segment")
+- Intelligent ETA calculation based on processing speed
+- Post-processing step tracking (reference resolution, data source creation)
+- Clean visual experience with suppressed verbose logging
+
+#### `--prefix`
+Customize terraform resource names by replacing the long resource type with a short custom prefix. By default, resources use the full type name (e.g., `zpa_pra_credential_controller_14669`). This flag allows you to use shorter, custom names for cleaner terraform code.
+
+```bash
+# Use custom prefix for much shorter resource names
+zscaler-terraformer --prefix "sgio" import --resources "zpa_pra_credential_controller"
+# → terraform import zpa_pra_credential_controller.sgio_14669 14669
+# → terraform import zpa_pra_credential_controller.sgio_14671 14671
+
+# Environment-specific prefixes
+zscaler-terraformer --prefix "prod" import --resources "zpa_application_segment"
+# → terraform import zpa_application_segment.prod_216196257331383019 216196257331383019
+
+# Without prefix (current default behavior)
+zscaler-terraformer import --resources "zpa_pra_credential_controller"  
+# → terraform import zpa_pra_credential_controller.zpa_pra_credential_controller_14669 14669
+```
+
+**Features:**
+- Significantly shorter terraform resource names for better readability
+- Eliminates long resource type repetition in names
+- Automatic prefix sanitization for terraform compatibility
+- Backward compatibility (uses current naming when prefix not specified)
+- Works with all import and generate operations
+
+### Flag Combinations
+
+The flags can be combined for enhanced functionality:
+
+```bash
+# Complete troubleshooting setup
+zscaler-terraformer --progress --collect-logs --validate import --resources "zpa"
+
+# Support-ready import with full logging
+zscaler-terraformer --collect-logs --progress import --resources "zia"
+
+# Custom prefix with progress and validation
+zscaler-terraformer --prefix "prod" --progress --validate import --resources "zpa"
+
+# Quick validation check
+zscaler-terraformer --validate generate --resource-type "zpa_server_group"
+
+# Enterprise naming with logging
+zscaler-terraformer --prefix "security_team" --collect-logs import --resources "zia"
+```
+
+### Troubleshooting and Support Workflows
+
+**For Support Cases:**
+```bash
+# Generate comprehensive debug logs for support analysis
+zscaler-terraformer --collect-logs import --resources "zpa"
+# → Creates debug_YYYYMMDD_HHMMSS.log with all API details
+
+# Get support contact information
+zscaler-terraformer --support
+# → Shows regional phone numbers and support resources
+```
+
+**For Development and Testing:**
+```bash
+# Validate configuration before use
+zscaler-terraformer --validate import --resources "zia_firewall_filtering_rule"
+# → Checks HCL syntax and provides fix suggestions
+
+# Monitor large imports with visual feedback
+zscaler-terraformer --progress import --resources "zia"
+# → Shows real-time progress with ETA
+```
+
+## Important Notes and Limitations
+
+The Zscaler Terraformer tool is designed to **facilitate the adoption** of Zscaler's [ZIA](https://registry.terraform.io/providers/zscaler/ztw/latest/docs) and [ZPA](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) Terraform providers by assisting with the initial heavy lift of writing Terraform code and obtaining existing configurations from your tenants.
+
+### Key Considerations
+
+**📚 Always Refer to Official Documentation**: While the tool auto-generates HCL code, **DevOps engineers and developers should always refer to the official provider documentation** to understand what actions specific attributes perform and their proper usage.
+
+**🔧 Provider Dependencies**: The tool relies on the respective Terraform providers. Configuration drifts may be due to provider schema issues or odd API behavior. Many drift issues can be resolved by manually editing the generated HCL code. For provider-specific issues, submit a support case via [Zscaler Global Support](https://help.zscaler.com/submit-ticket).
+
+**⚠️ Tool Limitations**: The tool is **not meant to be 100% perfect**. Some provider resources may not be immediately supported - use `terraform import` directly for these cases. Structured heredocs, environment-specific behaviors, and custom formatting requirements will not be addressed unless they represent existing bugs in the tool.
+
+## ZPA Example usage
+
+To get started with the zscaler-terraformer CLI to export your ZPA configuration, create a directory where you want the configuration to stored. See ZPA Demo:
+
+[![asciicast](https://asciinema.org/a/537966.svg)](https://asciinema.org/a/537966)
+
+**Option 1**
+
+### Import All ZPA Configuration
+
+```bash
+# Basic import
+zscaler-terraformer import --resources="zpa"
+
+# With progress tracking and debug logging
+zscaler-terraformer --progress --collect-logs import --resources="zpa"
+
+# With validation
+zscaler-terraformer --progress --validate import --resources="zpa"
+```
+
+### Import Specific ZPA Resource
+
+```bash
+# Basic import
+zscaler-terraformer import --resources="zpa_application_segment"
+
+# With progress bar
+zscaler-terraformer --progress import --resources="zpa_application_segment"
+```
+
+### Exclude specific ZPA resources from Importing
+
+```bash
+# Basic exclusion
+zscaler-terraformer import --resources="zpa" --exclude='zpa_segment_group, zpa_server_group'
+
+# With progress and logging
+zscaler-terraformer --progress --collect-logs import --resources="zpa" --exclude='zpa_segment_group'
+```
+
+By default, ``zscaler-terraformer`` will create a local configuration directory where it is being executed. You can also indicate the path where the imported configuration should be stored by using the folowing environment variable ``ZSCALER_ZPA_TERRAFORM_INSTALL_PATH``.
+
+```bash
+$ export ZSCALER_ZPA_TERRAFORM_INSTALL_PATH="$HOME/Desktop/zpa_configuration"
+$ zscaler-terraformer generate \
+  --resource-type "zpa_application_segment"
+```
+
+## ZIA Example usage
+
+To get started with the zscaler-terraformer CLI to export your ZIA configuration, create a directory where you want the configuration to stored.
+
+https://user-images.githubusercontent.com/23208337/204072949-a6f9bfb7-aaf0-4f76-87f8-ebc577c88247.mp4
+
+**Option 1**
+
+### Import All ZIA Configuration
+
+```bash
+# Basic import
+zscaler-terraformer import --resources="zia"
+
+# With progress tracking and debug logging
+zscaler-terraformer --progress --collect-logs import --resources="zia"
+
+# With validation
+zscaler-terraformer --progress --validate import --resources="zia"
+```
+
+### Import Specific ZIA Resource
+
+```bash
+# Basic import
+zscaler-terraformer import --resources="zia_firewall_filtering_rule"
+
+# With progress bar and validation
+zscaler-terraformer --progress --validate import --resources="zia_firewall_filtering_rule"
+```
+
+### Exclude specific ZIA resources from Importing
+
+```bash
+# Basic exclusion
+zscaler-terraformer import --resources="zia" --exclude='zia_forwarding_control_rule,zia_forwarding_control_zpa_gateway,zia_user_management'
+
+# With enhanced flags
+zscaler-terraformer --progress --collect-logs import --resources="zia" --exclude='zia_forwarding_control_rule'
+```
+
+By default, ``zscaler-terraformer`` will create a local configuration directory where it is being executed. You can also indicate the path where the imported configuration should be stored by using the folowing environment variable ``ZSCALER_ZIA_TERRAFORM_INSTALL_PATH``.
+
+```bash
+$ export ZSCALER_ZIA_TERRAFORM_INSTALL_PATH="$HOME/Desktop/zia_configuration"
+$ zscaler-terraformer generate \
+  --resource-type "zia_firewall_filtering_rule"
+```
+
+**Generate HCL Configuration**
+
+To simply generate the HCL configuration output without importing and creating the state file, use the command ``zscaler-terraformer generate``
+
+```bash
+# Basic generation
+$ zscaler-terraformer generate \
+  --zia-terraform-install-path $HOME/Desktop/zia_configuration \
+  --resource-type "zia_firewall_filtering_rule"
+
+# With progress and validation
+$ zscaler-terraformer --progress --validate generate \
+  --zia-terraform-install-path $HOME/Desktop/zia_configuration \
+  --resource-type "zia_firewall_filtering_rule"
+
+# With debug logging for troubleshooting
+$ zscaler-terraformer --collect-logs generate \
+  --resource-type "zpa_application_segment"
+```
+
+## Prerequisites
+
+* A ZIA and/or ZPA tenant with resources defined.
+* Valid ZIA and or/ZPA API credentials with sufficient permissions to access the resources
+  you are requesting via the API
+* ``zscaler-terraformer`` utility installed on the local machine.
+
+## Installation
+
+### Homebrew on MacOS
+
+If you use Homebrew on MacOS, you can run one of the following commands:
+
+```bash
+brew tap zscaler/tap
+brew install zscaler/tap/zscaler-terraformer
+```
+
+or
+
+```bash
+brew tap zscaler/tap
+brew install --cask zscaler/tap/zscaler-terraformer
+```
+### Windows - Chocolatey Package Manager
+
+If you want to run the tool on Windows, you can use Chocolatey package manager:
+
+```pwsh
+choco install zscaler-terraformer
+```
+
+### Linux
+
+From releases you can execute the following commands:
+
+```shell
+LATEST_TAG=$(curl -s https://api.github.com/repos/zscaler/zscaler-terraformer/releases/latest | grep '"tag_name":' | cut -d '"' -f 4)
+LATEST_VERSION=$(echo "$LATEST_TAG" | sed 's/v//')
+ZIP_FILE="zscaler-terraformer_${LATEST_VERSION}_linux_amd64.zip"
+curl -LO "https://github.com/zscaler/zscaler-terraformer/releases/download/${LATEST_TAG}/${ZIP_FILE}"
+unzip "$ZIP_FILE"
+chmod +x zscaler-terraformer
+sudo mv zscaler-terraformer /usr/local/bin
+```
+
+## Importing with Terraform state
+
+`zscaler-terraformer` will output the `terraform import` compatible commands for you
+when you invoke the `import` command. This command assumes you have already ran
+`zscaler-terraformer generate ...` to output your resources.
+
+In the future this process will be further automated; however for now, it is a manual step to
+allow flexibility in directory structure.
+
+
+## ZTW Supported Resources
+
+Any resources not listed are currently not supported.
+
+Last updated October xx, 2025
+
+Use the following command once the tool is installed to visualize the table of supported ZTW resources:
+
+```shell
+zscaler-terraformer --supported-resources="ztw"
+```
+
+| Resource | Resource Scope | Generate Supported | Import Supported |
+|----------|-----------|----------|----------|
+| [ztw_forwarding_gateway](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_forwarding_gateway) | Forward Gateway | ✅ | ✅ |
+| [ztw_ip_destination_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_ip_destination_groups) | Policy Resources | ✅ | ✅ |
+| [ztw_ip_source_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_ip_source_groups) | Policy Resources | ✅ | ✅ |
+| [ztw_ip_pool_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_ip_pool_groups) | Policy Resources  | ✅ | ✅ |
+| [ztw_network_service_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_network_service_groups) | Policy Resources  | ✅ | ✅ |
+| [ztw_network_services](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_network_services) | Policy Resources  | ✅ | ✅ |
+| [ztw_location_template](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_location_template) | Location Management | ✅ | ✅ |
+| [ztw_provisioning_url](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_provisioning_url) | Provisioning | ✅ | ✅ |
+| [ztw_traffic_forwarding_rule](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_traffic_forwarding_rule) | Policy Management| ✅ | ✅ |
+
+## Testing
+
+To ensure changes don't introduce regressions this tool uses an automated test
+suite consisting of HTTP mocks via go-vcr and Terraform configuration files to
+assert against. The premise is that we mock the HTTP responses from the
+ZPA, ZIA and/or ZTW APIs to ensure we don't need to create and delete real resources to
+test. The Terraform files then allow us to build what the resource structure is
+expected to look like and once the tool parses the API response, we can compare
+that to the static file.
+
+License
+=========
+
+MIT License
+
+=======
+
+Copyright (c) 2022 [Zscaler](https://github.com/zscaler)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
