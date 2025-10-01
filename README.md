@@ -98,8 +98,8 @@ xcopy "$env:GOPATH\bin\terraform-provider-ztw.exe" "$env:APPDATA\terraform.d\plu
 
 **Note**: For contributions created from forks, the repository should still be cloned under the `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztw` directory to allow the provided `make` commands to properly run, build, and test this project.
 
-Using Zscaler Internet Access Provider (Terraform v0.12+)
------------------------
+Using Zero Trust Workload (Terraform v0.12+)
+----------------------------------------------------------
 
 Activate the provider by adding the following to `~/.terraformrc` on Linux/Unix.
 
