@@ -5,7 +5,7 @@ page_title: "ZTW: ip_pool_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-ip-pool-groups
   API documentation https://help.zscaler.com/cloud-branch-connector/ip-pool-groups
-  Get information about IP Pool Groups.
+  Creates and manages IP Pool Groups.
 ---
 
 # ztw_ip_pool_groups (Resource)

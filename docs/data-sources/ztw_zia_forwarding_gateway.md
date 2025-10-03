@@ -1,24 +1,24 @@
 ---
 subcategory: "Forwarding Gateways"
 layout: "zscaler"
-page_title: "ZTW: forwarding_gateway"
+page_title: "ZTW: zia_forwarding_gateway"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-forwarding-gateways
   API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-gateways
   Get information about Forwarding Gateways.
 ---
 
-# ztw_forwarding_gateway (Data Source)
+# ztw_zia_forwarding_gateway (Data Source)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-forwarding-gateways)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways)
 
-Use the **ztw_forwarding_gateway** data source to get information about forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with ZTW traffic forwarding rule.
+Use the **ztw_zia_forwarding_gateway** data source to get information about forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with ZTW traffic forwarding rule.
 
 ## Example Usage - Retrieve by Name
 
 ```hcl
-data "ztw_forwarding_gateway" "example" {
+data "ztw_zia_forwarding_gateway" "example" {
     name = "example_forwarding_gateway"
 }
 ```
@@ -26,7 +26,7 @@ data "ztw_forwarding_gateway" "example" {
 ## Example Usage - Retrieve by ID
 
 ```hcl
-data "ztw_forwarding_gateway" "example" {
+data "ztw_zia_forwarding_gateway" "example" {
     id = 5458452
 }
 ```

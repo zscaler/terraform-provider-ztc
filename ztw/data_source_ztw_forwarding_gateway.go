@@ -7,12 +7,12 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 )
 
-func dataSourceForwardingGateway() *schema.Resource {
+func dataSourceZIAForwardingGateway() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceForwardingGatewayRead,
+		ReadContext: dataSourceZIAForwardingGatewayRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeInt,
@@ -80,15 +80,15 @@ func dataSourceForwardingGateway() *schema.Resource {
 	}
 }
 
-func dataSourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceZIAForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
-	var resp *forwarding_gateways.ECGateway
+	var resp *zia_forwarding_gateway.ECGateway
 	id, ok := getIntFromResourceData(d, "id")
 	if ok {
-		log.Printf("[INFO] Getting data for proxies id: %d\n", id)
-		res, _, err := forwarding_gateways.Get(ctx, service, id)
+		log.Printf("[INFO] Getting data for zia forwarding gateway  id: %d\n", id)
+		res, _, err := zia_forwarding_gateway.Get(ctx, service, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -96,8 +96,8 @@ func dataSourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData
 	}
 	name, _ := d.Get("name").(string)
 	if resp == nil && name != "" {
-		log.Printf("[INFO] Getting data for proxies name: %s\n", name)
-		res, err := forwarding_gateways.GetByName(ctx, service, name)
+		log.Printf("[INFO] Getting data for zia forwarding gateway name: %s\n", name)
+		res, err := zia_forwarding_gateway.GetByName(ctx, service, name)
 		if err != nil {
 			return diag.FromErr(err)
 		}

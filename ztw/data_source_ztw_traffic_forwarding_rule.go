@@ -8,12 +8,12 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 )
 
-func dataSourceForwardingControlRule() *schema.Resource {
+func dataSourceTrafficForwardingRule() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceForwardingControlRuleRead,
+		ReadContext: dataSourceTrafficForwardingRuleRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeInt,
@@ -385,15 +385,15 @@ func dataSourceForwardingControlRule() *schema.Resource {
 	}
 }
 
-func dataSourceForwardingControlRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
-	var resp *forwardingrules.ForwardingRules
+	var resp *forwarding_rules.ForwardingRules
 	id, ok := getIntFromResourceData(d, "id")
 	if ok {
 		log.Printf("[INFO] Getting data for forwarding control rule id: %d\n", id)
-		res, err := forwardingrules.Get(ctx, service, id)
+		res, err := forwarding_rules.Get(ctx, service, id)
 		if err != nil {
 			return diag.FromErr(err)
 		}
@@ -402,7 +402,7 @@ func dataSourceForwardingControlRuleRead(ctx context.Context, d *schema.Resource
 	name, _ := d.Get("name").(string)
 	if resp == nil && name != "" {
 		log.Printf("[INFO] Getting data for forwarding control rule : %s\n", name)
-		res, err := forwardingrules.GetRulesByName(ctx, service, name)
+		res, err := forwarding_rules.GetRulesByName(ctx, service, name)
 		if err != nil {
 			return diag.FromErr(err)
 		}

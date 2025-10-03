@@ -5,7 +5,7 @@ page_title: "ZTW: location_template"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-location-templates
   API documentation https://help.zscaler.com/cloud-branch-connector/location-templates
-  Get information about Location Templates.
+  Creates and manages Location Templates.
 ---
 
 # ztw_location_template (Resource)

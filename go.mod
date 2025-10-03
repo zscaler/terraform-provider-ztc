@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.23.0
 	github.com/hashicorp/terraform-plugin-sdk v1.17.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.1
-	github.com/zscaler/zscaler-sdk-go/v3 v3.7.2
+	github.com/zscaler/zscaler-sdk-go/v3 v3.7.4
 )
 
 require (
@@ -96,3 +96,5 @@ require (
 	gopkg.in/yaml.v2 v2.3.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+// replace github.com/zscaler/zscaler-sdk-go/v3 => /Users/wguilherme/go/src/github.com/zscaler/zscaler-sdk-go

@@ -8,7 +8,8 @@ const (
 	NetworkServices       = "ztw_network_services"
 	NetworkServiceGroups  = "ztw_network_service_groups"
 	TrafficForwardingRule = "ztw_traffic_forwarding_rule"
-	ForwardingGateway     = "ztw_forwarding_gateway"
+	ZIAForwardingGateway  = "ztw_zia_forwarding_gateway"
+	DNSForwardingGateway  = "ztw_dns_forwarding_gateway"
 	LocationTemplate      = "ztw_location_template"
 	ProvisioningURL       = "ztw_provisioning_url"
 )

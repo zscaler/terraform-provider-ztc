@@ -5,7 +5,7 @@ page_title: "ZTW: ip_source_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-ip-source-groups
   API documentation https://help.zscaler.com/cloud-branch-connector/ip-source-groups
-  Get information about IP Source Groups.
+  Creates and manages IP Source Groups.
 ---
 
 # ztw_ip_source_groups (Resource)
@@ -23,7 +23,6 @@ resource "zia_ip_source_groups" "this" {
   description  = "example1"
   ip_addresses = ["192.168.1.1", "192.168.1.2", "192.168.1.3"]
 }
-
 ```
 
 ## Argument Reference

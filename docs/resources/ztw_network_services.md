@@ -5,7 +5,7 @@ page_title: "ZTW: network_services"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-network-services
   API documentation https://help.zscaler.com/cloud-branch-connector/network-services
-  Get information about Network Services.
+  Creates and manages Network Services.
 ---
 
 # ztw_network_services (Resource)

@@ -13,12 +13,12 @@ import (
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/resourcetype"
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/testing/method"
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/testing/variable"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 )
 
 func TestAccResourceForwardingGateway_Basic(t *testing.T) {
-	var gateway forwarding_gateways.ECGateway
-	resourceTypeAndName, _, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.ForwardingGateway)
+	var gateway zia_forwarding_gateway.ECGateway
+	resourceTypeAndName, _, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.ZIAForwardingGateway)
 
 	initialName := "tf-acc-test-" + generatedName
 	updatedName := "tf-updated-" + generatedName
@@ -69,7 +69,7 @@ func testAccCheckForwardingGatewayDestroy(s *terraform.State) error {
 	service := apiClient.Service
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != resourcetype.ForwardingGateway {
+		if rs.Type != resourcetype.ZIAForwardingGateway {
 			continue
 		}
 
@@ -79,7 +79,7 @@ func testAccCheckForwardingGatewayDestroy(s *terraform.State) error {
 			return err
 		}
 
-		rule, _, err := forwarding_gateways.Get(context.Background(), service, id)
+		rule, _, err := zia_forwarding_gateway.Get(context.Background(), service, id)
 
 		if err == nil {
 			return fmt.Errorf("id %d already exists", id)
@@ -93,7 +93,7 @@ func testAccCheckForwardingGatewayDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckForwardingGatewayExists(resource string, rule *forwarding_gateways.ECGateway) resource.TestCheckFunc {
+func testAccCheckForwardingGatewayExists(resource string, rule *zia_forwarding_gateway.ECGateway) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -112,7 +112,7 @@ func testAccCheckForwardingGatewayExists(resource string, rule *forwarding_gatew
 		apiClient := testAccProvider.Meta().(*Client)
 		service := apiClient.Service
 
-		receivedRule, _, err := forwarding_gateways.Get(context.Background(), service, id)
+		receivedRule, _, err := zia_forwarding_gateway.Get(context.Background(), service, id)
 		if err != nil {
 			return fmt.Errorf("failed fetching resource %s. Recevied error: %s", resource, err)
 		}
@@ -140,7 +140,7 @@ resource "%s" "%s" {
   }
 `,
 		// Resource type and name for the destination ip group
-		resourcetype.ForwardingGateway,
+		resourcetype.ZIAForwardingGateway,
 		resourceName,
 		generatedName,
 		description,
@@ -150,11 +150,11 @@ resource "%s" "%s" {
 		gatewayType,
 
 		// Data source type and name
-		resourcetype.ForwardingGateway,
+		resourcetype.ZIAForwardingGateway,
 		resourceName,
 
 		// Reference to the resource
-		resourcetype.ForwardingGateway,
+		resourcetype.ZIAForwardingGateway,
 		resourceName,
 	)
 }

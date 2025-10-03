@@ -1,24 +1,24 @@
 ---
 subcategory: "Forwarding Gateways"
 layout: "zscaler"
-page_title: "ZTW: forwarding_gateway"
+page_title: "ZTW: zia_forwarding_gateway"
 description: |-
-  Official documentation https://help.zscaler.com/cloud-branch-connector/about-forwarding-gateways
+  Official documentation https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding
   API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-gateways
-  Get information about Forwarding Gateways.
+  Creates and manages ZIA and Log Control Forwarding Gateways.
 ---
 
-# ztw_forwarding_gateway (Resource)
+# ztw_zia_forwarding_gateway (Resource)
 
-* [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-forwarding-gateways)
+* [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways)
 
-Use the **ztw_forwarding_gateway** resource allows the creation and management of forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTW traffic forwarding rule.
+Use the **ztw_zia_forwarding_gateway** resource allows the creation and management of ZIA and Log Forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTW traffic forwarding rule.
 
-## Example Usage - Primary and Secondary Type AUTO
+## Example Usage - ZIA Primary and Secondary Type AUTO
 
 ```hcl
-resource "ztw_forwarding_gateway" "ztw_gw01" {
+resource "ztw_zia_forwarding_gateway" "ztw_gw01" {
   name           = "ZTW_GW01"
   description    = "Example Forwarding Gateway 1"
   fail_closed    = true
@@ -28,10 +28,10 @@ resource "ztw_forwarding_gateway" "ztw_gw01" {
 }
 ```
 
-## Example Usage - Primary and Secondary Type DC
+## Example Usage - ZIA Primary and Secondary Type DC
 
 ```hcl
-resource "ztw_forwarding_gateway" "ztw_gw02" {
+resource "ztw_zia_forwarding_gateway" "ztw_gw02" {
   name             = "ZTW_GW02"
   description      = "Example Forwarding Gateway 2"
   fail_closed      = true
@@ -43,10 +43,10 @@ resource "ztw_forwarding_gateway" "ztw_gw02" {
 }
 ```
 
-## Example Usage - Primary and Secondary Type MANUAL_OVERRIDE
+## Example Usage - ZIA Primary and Secondary Type MANUAL_OVERRIDE
 
 ```hcl
-resource "ztw_forwarding_gateway" "ztw_gw03" {
+resource "ztw_zia_forwarding_gateway" "ztw_gw03" {
   name             = "ZTW_GW03"
   description      = "Example Forwarding Gateway 3"
   fail_closed      = true
@@ -55,6 +55,49 @@ resource "ztw_forwarding_gateway" "ztw_gw03" {
   manual_primary   = "1.1.1.1"
   manual_secondary = "2.2.2.2"
   type             = "ZIA"
+}
+```
+
+## Example Usage - Log Forwarding Gateway Primary and Secondary Type AUTO
+
+```hcl
+resource "ztw_zia_forwarding_gateway" "ztw_log01" {
+  name           = "LOG_FW_GW01"
+  description    = "Example Log Forwarding Gateway 1"
+  fail_closed    = true
+  primary_type   = "AUTO"
+  secondary_type = "AUTO"
+  type           = "ECSELF"
+}
+```
+
+## Example Usage - Log Forwarding Gateway Primary and Secondary Type DC
+
+```hcl
+resource "ztw_zia_forwarding_gateway" "ztw_log02" {
+  name           = "LOG_FW_GW02"
+  description    = "Example Log Forwarding Gateway 2"
+  fail_closed      = true
+  primary_type     = "DC"
+  secondary_type   = "DC"
+  manual_primary   = "zrh1.svpn.zscalerbeta.net"
+  manual_secondary = "syseng.svpn.zscalerbeta.net"
+  type             = "ECSELF"
+}
+```
+
+## Example Usage - Log Forwarding Gateway Primary and Secondary Type MANUAL_OVERRIDE
+
+```hcl
+resource "ztw_zia_forwarding_gateway" "ztw_log03" {
+  name           = "LOG_FW_GW03"
+  description    = "Example Log Forwarding Gateway 3"
+  fail_closed      = true
+  primary_type     = "MANUAL_OVERRIDE"
+  secondary_type   = "MANUAL_OVERRIDE"
+  manual_primary   = "1.1.1.1"
+  manual_secondary = "2.2.2.2"
+  type             = "ECSELF"
 }
 ```
 
@@ -77,7 +120,7 @@ In addition to all arguments above, the following attributes are exported:
 ### Optional
 
 * `description` - (String) Additional details about the Forwarding Gateway.
-* `type` - (String) Type of the gateway. Supported types are `ZIA` and `ECSELF` (Log and Control gateway).
+* `type` - (String) Type of the gateway. Supported types are `ZIA`. Use `ECSELF`for (Log and Control gateway).
 * `fail_closed` - (Boolean) A true value indicates that traffic must be dropped when both primary and secondary proxies defined in the gateway are unreachable. A false value indicates that traffic must be allowed.
 * `manual_primary` - (String) Specifies the primary proxy through which traffic must be forwarded. Depending on the proxy forwarding type specified (AUTODC), this field includes a preconfigured data center, or a specified IP address or domain name.
 * `manual_secondary` - (String) Specifies the secondary proxy through which traffic must be forwarded. Depending on the proxy forwarding type specified (AUTODC), this field includes a preconfigured data center, or a specified IP address or domain name.
@@ -95,16 +138,16 @@ In addition to all arguments above, the following attributes are exported:
 Zscaler offers a dedicated tool called Zscaler-Terraformer to allow the automated import of ZTW configurations into Terraform-compliant HashiCorp Configuration Language.
 [Visit](https://github.com/zscaler/zscaler-terraformer)
 
-**ztw_forwarding_gateway** can be imported by using `<GATEWAY_ID>` or `<GATEWAY_NAME>` as the import ID.
+**ztw_zia_forwarding_gateway** can be imported by using `<GATEWAY_ID>` or `<GATEWAY_NAME>` as the import ID.
 
 For example:
 
 ```shell
-terraform import ztw_forwarding_gateway.example <rule_id>
+terraform import ztw_zia_forwarding_gateway.example <rule_id>
 ```
 
 or
 
 ```shell
-terraform import ztw_forwarding_gateway.example <rule_name>
+terraform import ztw_zia_forwarding_gateway.example <rule_name>
 ```

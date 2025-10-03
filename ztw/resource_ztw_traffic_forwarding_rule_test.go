@@ -12,11 +12,11 @@ import (
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/resourcetype"
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/testing/method"
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/testing/variable"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 )
 
 func TestAccResourceTrafficForwardingRule_Basic(t *testing.T) {
-	var rules forwardingrules.ForwardingRules
+	var rules forwarding_rules.ForwardingRules
 	resourceTypeAndName, _, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.TrafficForwardingRule)
 
 	// Generate Source IP Group HCL Resource
@@ -85,7 +85,7 @@ func testAccCheckTrafficForwardingRuleDestroy(s *terraform.State) error {
 			return err
 		}
 
-		rule, err := forwardingrules.Get(context.Background(), service, id)
+		rule, err := forwarding_rules.Get(context.Background(), service, id)
 
 		if err == nil {
 			return fmt.Errorf("id %d already exists", id)
@@ -99,7 +99,7 @@ func testAccCheckTrafficForwardingRuleDestroy(s *terraform.State) error {
 	return nil
 }
 
-func testAccCheckTrafficForwardingRuleExists(resource string, rule *forwardingrules.ForwardingRules) resource.TestCheckFunc {
+func testAccCheckTrafficForwardingRuleExists(resource string, rule *forwarding_rules.ForwardingRules) resource.TestCheckFunc {
 	return func(state *terraform.State) error {
 		rs, ok := state.RootModule().Resources[resource]
 		if !ok {
@@ -118,12 +118,12 @@ func testAccCheckTrafficForwardingRuleExists(resource string, rule *forwardingru
 		apiClient := testAccProvider.Meta().(*Client)
 		service := apiClient.Service
 
-		var receivedRule *forwardingrules.ForwardingRules
+		var receivedRule *forwarding_rules.ForwardingRules
 
 		// Integrate retry here
 		retryErr := RetryOnError(func() error {
 			var innerErr error
-			receivedRule, innerErr = forwardingrules.Get(context.Background(), service, id)
+			receivedRule, innerErr = forwarding_rules.Get(context.Background(), service, id)
 			if innerErr != nil {
 				return fmt.Errorf("failed fetching resource %s. Recevied error: %s", resource, innerErr)
 			}
