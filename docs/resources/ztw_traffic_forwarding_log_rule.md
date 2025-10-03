@@ -15,7 +15,7 @@ description: |-
 
 Use the **ztw_traffic_forwarding_log_rule** resource allows the creation and management of forwarding log rule available in the Zscaler Cloud and Branch Connector Portal.
 
-## ## Example Usage - DNS Forwarding Group - Action REDIR_REQ
+## Example Usage - DNS Forwarding Group - Action REDIR_REQ
 
 ```hcl
 resource "ztw_zia_forwarding_gateway" "this" {
