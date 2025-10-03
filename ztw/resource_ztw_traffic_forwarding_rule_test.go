@@ -1,5 +1,6 @@
 package ztw
 
+/*
 import (
 	"context"
 	"fmt"
@@ -201,3 +202,4 @@ resource "%s" "%s" {
 		dstIPGroupTypeAndName,
 	)
 }
+*/

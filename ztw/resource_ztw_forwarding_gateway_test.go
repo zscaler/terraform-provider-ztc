@@ -26,7 +26,7 @@ func TestAccResourceForwardingGateway_Basic(t *testing.T) {
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },
 		Providers:    testAccProviders,
-		CheckDestroy: testAccCheckIPDestinationGroupsDestroy,
+		CheckDestroy: testAccCheckForwardingGatewayDestroy,
 		Steps: []resource.TestStep{
 			{
 				Config: testAccCheckForwardingGatewayConfigure(resourceTypeAndName, initialName, variable.ForwardGWDescription, variable.ForwardGWPrimaryType, variable.ForwardGWSecondaryType, variable.ForwardGWType, variable.ForwardGWFailClose),
@@ -139,7 +139,7 @@ resource "%s" "%s" {
 	id = "${%s.%s.id}"
   }
 `,
-		// Resource type and name for the destination ip group
+		// Resource type and name for the zia forwarding gateway
 		resourcetype.ZIAForwardingGateway,
 		resourceName,
 		generatedName,

@@ -46,3 +46,9 @@ const (
 	ForwardControlMethod          = "DIRECT"
 	ForwardControlState           = "ENABLED"
 )
+
+const (
+	ForwardECDNSGatewayPrimary   = "LAN_PRI_DNS_AS_PRI"
+	ForwardECDNSGatewaySecondary = "LAN_SEC_DNS_AS_SEC"
+	ForwardDNSFailureBehavior    = "FAIL_ALLOW_IGNORE_DNAT"
+)
