@@ -11,7 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policyresources/networkservices"
 )
 
@@ -714,6 +714,30 @@ func setIdNameSchemaCustom(maxItems int, description string) *schema.Schema {
 	}
 }
 
+func setIDSchemaCustom(maxItems int, description string) *schema.Schema {
+	return &schema.Schema{
+		Type:        schema.TypeSet,
+		Optional:    true,
+		Computed:    true,
+		Description: description,
+		MaxItems:    maxItems,
+		Elem: &schema.Resource{
+			Schema: map[string]*schema.Schema{
+				"id": {
+					Type:        schema.TypeInt,
+					Required:    true,
+					Description: "The unique identifier for the resource.",
+				},
+				"name": {
+					Type:        schema.TypeString,
+					Optional:    true,
+					Description: "The name of the resource.",
+				},
+			},
+		},
+	}
+}
+
 func setExtIDNameSchemaCustom(maxItems *int, description string) *schema.Schema {
 	schema := &schema.Schema{
 		Type:        schema.TypeSet,
@@ -789,6 +813,16 @@ func flattenIDNameSet(idName *common.CommonIDName) []interface{} {
 		idNameSet = append(idNameSet, map[string]interface{}{
 			"id":   idName.ID,
 			"name": idName.Name,
+		})
+	}
+	return idNameSet
+}
+
+func flattenIDSet(idName *common.CommonIDName) []interface{} {
+	idNameSet := make([]interface{}, 0)
+	if idName != nil {
+		idNameSet = append(idNameSet, map[string]interface{}{
+			"id": idName.ID,
 		})
 	}
 	return idNameSet
@@ -920,10 +954,28 @@ func expandIDNameSet(d *schema.ResourceData, key string) *common.CommonIDName {
 	return nil
 }
 
+func expandIDSet(d *schema.ResourceData, key string) *common.CommonIDName {
+	idNameList, ok := d.Get(key).(*schema.Set)
+	if !ok || idNameList.Len() == 0 {
+		return nil
+	}
+
+	// Assuming each set can only have one item as per your JSON structure.
+	// If it can have multiple, this needs to be adjusted accordingly.
+	for _, v := range idNameList.List() {
+		item := v.(map[string]interface{})
+		return &common.CommonIDName{
+			ID: item["id"].(int),
+		}
+	}
+
+	return nil
+}
+
 func currentOrderVsRankWording(ctx context.Context, zClient *Client) string {
 	service := zClient.Service
 
-	list, err := forwardingrules.GetAll(ctx, service)
+	list, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
 		return ""
 	}

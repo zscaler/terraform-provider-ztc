@@ -16,7 +16,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/errorx"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 )
 
 var (
@@ -24,12 +24,12 @@ var (
 	forwardingControlStartingOrder int
 )
 
-func resourceForwardingControlRule() *schema.Resource {
+func resourceTrafficForwardingRule() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceForwardingControlRuleCreate,
-		ReadContext:   resourceForwardingControlRuleRead,
-		UpdateContext: resourceForwardingControlRuleUpdate,
-		DeleteContext: resourceForwardingControlRuleDelete,
+		CreateContext: resourceTrafficForwardingRuleCreate,
+		ReadContext:   resourceTrafficForwardingRuleRead,
+		UpdateContext: resourceTrafficForwardingRuleUpdate,
+		DeleteContext: resourceTrafficForwardingRuleDelete,
 		CustomizeDiff: func(ctx context.Context, d *schema.ResourceDiff, meta interface{}) error {
 			forwardMethod := d.Get("forward_method").(string)
 
@@ -94,7 +94,7 @@ func resourceForwardingControlRule() *schema.Resource {
 				if parseIDErr == nil {
 					_ = d.Set("rule_id", idInt)
 				} else {
-					resp, err := forwardingrules.GetRulesByName(ctx, service, id)
+					resp, err := forwarding_rules.GetRulesByName(ctx, service, id)
 					if err == nil {
 						d.SetId(strconv.Itoa(resp.ID))
 						_ = d.Set("rule_id", resp.ID)
@@ -235,7 +235,7 @@ func resourceForwardingControlRule() *schema.Resource {
 	}
 }
 
-func validatePredefinedRules(req forwardingrules.ForwardingRules) error {
+func validatePredefinedRules(req forwarding_rules.ForwardingRules) error {
 	if req.Name == "ZPA Forwarding Rule" || req.Name == "Direct rule for Zscaler Cloud Endpoints" {
 		return fmt.Errorf("predefined rule '%s' cannot be deleted", req.Name)
 	}
@@ -248,7 +248,7 @@ func validatePredefinedRules(req forwardingrules.ForwardingRules) error {
 	return nil
 }
 
-func resourceForwardingControlRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -259,7 +259,7 @@ func resourceForwardingControlRuleCreate(ctx context.Context, d *schema.Resource
 
 	forwardingControlLock.Lock()
 	if forwardingControlStartingOrder == 0 {
-		list, _ := forwardingrules.GetAll(ctx, service)
+		list, _ := forwarding_rules.GetAll(ctx, service)
 		for _, r := range list {
 			if r.Order > forwardingControlStartingOrder {
 				forwardingControlStartingOrder = r.Order
@@ -282,7 +282,7 @@ func resourceForwardingControlRuleCreate(ctx context.Context, d *schema.Resource
 		req.Rank = 7
 	}
 	req.Order = forwardingControlStartingOrder
-	resp, err := forwardingrules.Create(ctx, service, &req)
+	resp, err := forwarding_rules.Create(ctx, service, &req)
 
 	// Fail immediately if INVALID_INPUT_ARGUMENT is detected
 	if customErr := failFastOnErrorCodes(err); customErr != nil {
@@ -308,7 +308,7 @@ func resourceForwardingControlRuleCreate(ctx context.Context, d *schema.Resource
 		resp.ID,
 		resourceType,
 		func() (int, error) {
-			allRules, err := forwardingrules.GetAll(ctx, service)
+			allRules, err := forwarding_rules.GetAll(ctx, service)
 			if err != nil {
 				return 0, err
 			}
@@ -317,14 +317,14 @@ func resourceForwardingControlRuleCreate(ctx context.Context, d *schema.Resource
 		},
 		func(id int, order OrderRule) error {
 			// Custom updateOrder that handles predefined rules
-			rule, err := forwardingrules.Get(ctx, service, id)
+			rule, err := forwarding_rules.Get(ctx, service, id)
 			if err != nil {
 				return err
 			}
 
 			rule.Order = order.Order
 			rule.Rank = order.Rank
-			_, err = forwardingrules.Update(ctx, service, id, rule)
+			_, err = forwarding_rules.Update(ctx, service, id, rule)
 			return err
 		},
 		nil, // Remove beforeReorder function to avoid adding too many rules to the map
@@ -335,10 +335,10 @@ func resourceForwardingControlRuleCreate(ctx context.Context, d *schema.Resource
 
 	markOrderRuleAsDone(resp.ID, resourceType)
 
-	return resourceForwardingControlRuleRead(ctx, d, meta)
+	return resourceTrafficForwardingRuleRead(ctx, d, meta)
 }
 
-func resourceForwardingControlRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -346,7 +346,7 @@ func resourceForwardingControlRuleRead(ctx context.Context, d *schema.ResourceDa
 	if !ok {
 		return diag.FromErr(fmt.Errorf("no zia forwarding control rule id is set"))
 	}
-	resp, err := forwardingrules.Get(ctx, service, id)
+	resp, err := forwarding_rules.Get(ctx, service, id)
 	if err != nil {
 		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
 			log.Printf("[WARN] Removing forwarding control rule %s from state because it no longer exists in ZIA", d.Id())
@@ -429,7 +429,7 @@ func resourceForwardingControlRuleRead(ctx context.Context, d *schema.ResourceDa
 	return nil
 }
 
-func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -441,13 +441,13 @@ func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.Resource
 	log.Printf("[INFO] Updating forwarding control rule ID: %v\n", id)
 	req := expandForwardingControlRule(d)
 
-	if _, err := forwardingrules.Get(ctx, service, id); err != nil {
+	if _, err := forwarding_rules.Get(ctx, service, id); err != nil {
 		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
 			d.SetId("")
 			return nil
 		}
 	}
-	existingRules, err := forwardingrules.GetAll(ctx, service)
+	existingRules, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
 		log.Printf("[ERROR] error getting all forwarding rules: %v", err)
 	}
@@ -462,7 +462,7 @@ func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.Resource
 
 	req.Order = nextAvailableOrder
 
-	_, err = forwardingrules.Update(ctx, service, id, &req)
+	_, err = forwarding_rules.Update(ctx, service, id, &req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -481,7 +481,7 @@ func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.Resource
 
 	reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, "forwarding_control_rule",
 		func() (int, error) {
-			allRules, err := forwardingrules.GetAll(ctx, service)
+			allRules, err := forwarding_rules.GetAll(ctx, service)
 			if err != nil {
 				return 0, err
 			}
@@ -489,7 +489,7 @@ func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.Resource
 			return len(allRules), nil
 		},
 		func(id int, order OrderRule) error {
-			rule, err := forwardingrules.Get(ctx, service, id)
+			rule, err := forwarding_rules.Get(ctx, service, id)
 			if err != nil {
 				return err
 			}
@@ -500,13 +500,13 @@ func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.Resource
 
 			rule.Order = order.Order
 			rule.Rank = order.Rank
-			_, err = forwardingrules.Update(ctx, service, id, rule)
+			_, err = forwarding_rules.Update(ctx, service, id, rule)
 			return err
 		},
 		nil, // Remove beforeReorder function to avoid adding too many rules to the map
 	)
 
-	if diags := resourceForwardingControlRuleRead(ctx, d, meta); diags.HasError() {
+	if diags := resourceTrafficForwardingRuleRead(ctx, d, meta); diags.HasError() {
 		return diags
 	}
 	markOrderRuleAsDone(req.ID, "forwarding_control_rule")
@@ -514,7 +514,7 @@ func resourceForwardingControlRuleUpdate(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func resourceForwardingControlRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceTrafficForwardingRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -524,7 +524,7 @@ func resourceForwardingControlRuleDelete(ctx context.Context, d *schema.Resource
 	}
 
 	// Retrieve the rule to check if it's a predefined one
-	rule, err := forwardingrules.Get(ctx, service, id)
+	rule, err := forwarding_rules.Get(ctx, service, id)
 	if err != nil {
 		return diag.FromErr(fmt.Errorf("error retrieving forwarding control rule %d: %v", id, err))
 	}
@@ -535,7 +535,7 @@ func resourceForwardingControlRuleDelete(ctx context.Context, d *schema.Resource
 	}
 
 	log.Printf("[INFO] Deleting forwarding control rule ID: %v", id)
-	if _, err := forwardingrules.Delete(ctx, service, id); err != nil {
+	if _, err := forwarding_rules.Delete(ctx, service, id); err != nil {
 		return diag.FromErr(fmt.Errorf("error deleting forwarding control rule %d: %v", id, err))
 	}
 
@@ -545,7 +545,7 @@ func resourceForwardingControlRuleDelete(ctx context.Context, d *schema.Resource
 	return nil
 }
 
-func expandForwardingControlRule(d *schema.ResourceData) forwardingrules.ForwardingRules {
+func expandForwardingControlRule(d *schema.ResourceData) forwarding_rules.ForwardingRules {
 	id, _ := getIntFromResourceData(d, "rule_id")
 
 	// Retrieve the order and fallback to 1 if it's 0
@@ -566,7 +566,7 @@ func expandForwardingControlRule(d *schema.ResourceData) forwardingrules.Forward
 		}
 	}
 
-	result := forwardingrules.ForwardingRules{
+	result := forwarding_rules.ForwardingRules{
 		ID:                          id,
 		Name:                        d.Get("name").(string),
 		Description:                 d.Get("description").(string),
@@ -602,7 +602,7 @@ func expandForwardingControlRule(d *schema.ResourceData) forwardingrules.Forward
 func currentRuleOrderVsRankWording(ctx context.Context, zClient *Client) string {
 	service := zClient.Service
 
-	list, err := forwardingrules.GetAll(ctx, service)
+	list, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
 		return ""
 	}

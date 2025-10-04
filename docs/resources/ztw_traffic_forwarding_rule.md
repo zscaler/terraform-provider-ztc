@@ -5,7 +5,7 @@ page_title: "ZTW: traffic_forwarding_rule"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-forwarding-rules
   API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-rules
-  Get information about Traffic Forwarding Rules.
+  Creates and manages Traffic Forwarding Rules.
 ---
 
 # ztw_traffic_forwarding_rule (Resource)

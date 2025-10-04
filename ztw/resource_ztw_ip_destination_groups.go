@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/errorx"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policyresources/ipdestinationgroups"
 )
 
@@ -209,10 +209,10 @@ func resourceIPDestinationGroupsDelete(ctx context.Context, d *schema.ResourceDa
 		zClient,
 		id,
 		"IPDestinationGroups",
-		func(r *forwardingrules.ForwardingRules) []common.IDNameExtensions {
+		func(r *forwarding_rules.ForwardingRules) []common.IDNameExtensions {
 			return r.DestIpGroups
 		},
-		func(r *forwardingrules.ForwardingRules, ids []common.IDNameExtensions) {
+		func(r *forwarding_rules.ForwardingRules, ids []common.IDNameExtensions) {
 			r.DestIpGroups = ids
 		},
 	)

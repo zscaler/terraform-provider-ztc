@@ -5,7 +5,7 @@ page_title: "ZTW: provisioning_url"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-provisioning-urls
   API documentation https://help.zscaler.com/cloud-branch-connector/provisioning-urls
-  Get information about Provisioning URLs.
+  Creates and manages Provisioning URLs.
 ---
 
 # ztw_provisioning_url (Resource)

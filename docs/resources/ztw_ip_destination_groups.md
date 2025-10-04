@@ -5,7 +5,7 @@ page_title: "ZTW: ip_destination_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-ip-destination-groups
   API documentation https://help.zscaler.com/cloud-branch-connector/ip-destination-groups
-  Get information about IP Destination Groups.
+  Creates and manages IP Destination Groups.
 ---
 
 # ztw_ip_destination_groups (Resource)

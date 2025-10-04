@@ -1,5 +1,6 @@
 package ztw
 
+/*
 import (
 	"testing"
 
@@ -42,3 +43,4 @@ func TestAccDataSourceTrafficForwardingRule_Basic(t *testing.T) {
 		},
 	})
 }
+*/

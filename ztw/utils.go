@@ -12,7 +12,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/errorx"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 )
 
 func intPtr(n int) *int {
@@ -139,11 +139,11 @@ func processCountries(countries []string) []string {
 	return processedCountries
 }
 
-func DetachRuleIDNameExtensions(ctx context.Context, client *Client, id int, resource string, getResources func(*forwardingrules.ForwardingRules) []common.IDNameExtensions, setResources func(*forwardingrules.ForwardingRules, []common.IDNameExtensions)) error {
+func DetachRuleIDNameExtensions(ctx context.Context, client *Client, id int, resource string, getResources func(*forwarding_rules.ForwardingRules) []common.IDNameExtensions, setResources func(*forwarding_rules.ForwardingRules, []common.IDNameExtensions)) error {
 	service := client.Service
 
 	log.Printf("[INFO] Detaching filtering rule from %s: %d\n", resource, id)
-	rules, err := forwardingrules.GetAll(ctx, service)
+	rules, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
 		log.Printf("[error] Error while getting filtering rule")
 		return err
@@ -162,9 +162,9 @@ func DetachRuleIDNameExtensions(ctx context.Context, client *Client, id int, res
 		if shouldUpdate {
 			setResources(&rule, ids)
 			time.Sleep(time.Second * 5)
-			_, err = forwardingrules.Get(ctx, service, rule.ID)
+			_, err = forwarding_rules.Get(ctx, service, rule.ID)
 			if err == nil {
-				_, err = forwardingrules.Update(ctx, service, rule.ID, &rule)
+				_, err = forwarding_rules.Update(ctx, service, rule.ID, &rule)
 				if err != nil {
 					return err
 				}

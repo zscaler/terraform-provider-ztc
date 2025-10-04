@@ -11,9 +11,10 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/zscaler/terraform-provider-ztw/ztw/common/resourcetype"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/locationmanagement/locationtemplate"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policymanagement/forwardingrules"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policyresources/ipgroups"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policyresources/networkservicegroups"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policyresources/networkservices"
@@ -84,7 +85,8 @@ func TestRunForcedSweeper(t *testing.T) {
 	sweepTestNetworkServicesGroup(testClient)
 	sweepTestIPPoolGroup(testClient)
 	sweepTestTrafficForwardingRule(testClient)
-	sweepTestForwardingGateway(testClient)
+	sweepTestZIAForwardingGateway(testClient)
+	sweepTestDNSForwardingGateway(testClient)
 	sweepTestLocationTemplate(testClient)
 	sweepTestProvisioningURL(testClient)
 }
@@ -274,7 +276,7 @@ func sweepTestTrafficForwardingRule(client *testClient) error {
 		Client: client.sdkV3Client,
 	}
 
-	rule, err := forwardingrules.GetAll(context.Background(), service)
+	rule, err := forwarding_rules.GetAll(context.Background(), service)
 	if err != nil {
 		return err
 	}
@@ -283,7 +285,7 @@ func sweepTestTrafficForwardingRule(client *testClient) error {
 	for _, b := range rule {
 		// Check if the resource name has the required prefix before deleting it
 		if strings.HasPrefix(b.Name, testResourcePrefix) || strings.HasPrefix(b.Name, updateResourcePrefix) {
-			if _, err := forwardingrules.Delete(context.Background(), service, b.ID); err != nil {
+			if _, err := forwarding_rules.Delete(context.Background(), service, b.ID); err != nil {
 				errorList = append(errorList, err)
 				continue
 			}
@@ -299,14 +301,14 @@ func sweepTestTrafficForwardingRule(client *testClient) error {
 	return condenseError(errorList)
 }
 
-func sweepTestForwardingGateway(client *testClient) error {
+func sweepTestZIAForwardingGateway(client *testClient) error {
 	var errorList []error
 
 	service := &zscaler.Service{
 		Client: client.sdkV3Client,
 	}
 
-	rule, err := forwarding_gateways.GetAll(context.Background(), service)
+	rule, err := zia_forwarding_gateway.GetAll(context.Background(), service)
 	if err != nil {
 		return err
 	}
@@ -315,11 +317,43 @@ func sweepTestForwardingGateway(client *testClient) error {
 	for _, b := range rule {
 		// Check if the resource name has the required prefix before deleting it
 		if strings.HasPrefix(b.Name, testResourcePrefix) || strings.HasPrefix(b.Name, updateResourcePrefix) {
-			if _, err := forwarding_gateways.Delete(context.Background(), service, b.ID); err != nil {
+			if _, err := zia_forwarding_gateway.Delete(context.Background(), service, b.ID); err != nil {
 				errorList = append(errorList, err)
 				continue
 			}
-			logSweptResource(resourcetype.ForwardingGateway, fmt.Sprintf("%d", b.ID), b.Name)
+			logSweptResource(resourcetype.ZIAForwardingGateway, fmt.Sprintf("%d", b.ID), b.Name)
+		}
+	}
+	// Log errors encountered during the deletion process
+	if len(errorList) > 0 {
+		for _, err := range errorList {
+			sweeperLogger.Error(err.Error())
+		}
+	}
+	return condenseError(errorList)
+}
+
+func sweepTestDNSForwardingGateway(client *testClient) error {
+	var errorList []error
+
+	service := &zscaler.Service{
+		Client: client.sdkV3Client,
+	}
+
+	rule, err := dns_forwarding_gateway.GetAll(context.Background(), service)
+	if err != nil {
+		return err
+	}
+	// Logging the number of identified resources before the deletion loop
+	sweeperLogger.Warn(fmt.Sprintf("Found %d resources to sweep", len(rule)))
+	for _, b := range rule {
+		// Check if the resource name has the required prefix before deleting it
+		if strings.HasPrefix(b.Name, testResourcePrefix) || strings.HasPrefix(b.Name, updateResourcePrefix) {
+			if _, err := dns_forwarding_gateway.Delete(context.Background(), service, b.ID); err != nil {
+				errorList = append(errorList, err)
+				continue
+			}
+			logSweptResource(resourcetype.DNSForwardingGateway, fmt.Sprintf("%d", b.ID), b.Name)
 		}
 	}
 	// Log errors encountered during the deletion process

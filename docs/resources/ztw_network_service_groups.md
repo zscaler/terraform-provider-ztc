@@ -5,7 +5,7 @@ page_title: "ZTW: network_service_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-network-service-groups
   API documentation https://help.zscaler.com/cloud-branch-connector/network-service-groups
-  Get information about Network Service Groups.
+  Creates and manages Network Service Groups.
 ---
 
 # ztw_network_service_groups (Resource)

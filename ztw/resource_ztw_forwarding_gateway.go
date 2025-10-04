@@ -11,15 +11,15 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/errorx"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 )
 
-func resourceForwardingGateway() *schema.Resource {
+func resourceZIAForwardingGateway() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceForwardingGatewayCreate,
-		ReadContext:   resourceForwardingGatewayRead,
-		UpdateContext: resourceForwardingGatewayUpdate,
-		DeleteContext: resourceForwardingGatewayDelete,
+		CreateContext: resourceZIAForwardingGatewayCreate,
+		ReadContext:   resourceZIAForwardingGatewayRead,
+		UpdateContext: resourceZIAForwardingGatewayUpdate,
+		DeleteContext: resourceZIAForwardingGatewayDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 				zClient := meta.(*Client)
@@ -30,7 +30,7 @@ func resourceForwardingGateway() *schema.Resource {
 				if parseIDErr == nil {
 					_ = d.Set("gateway_id", idInt)
 				} else {
-					resp, err := forwarding_gateways.GetByName(ctx, service, id)
+					resp, err := zia_forwarding_gateway.GetByName(ctx, service, id)
 					if err == nil {
 						d.SetId(strconv.Itoa(resp.ID))
 						_ = d.Set("gateway_id", resp.ID)
@@ -94,7 +94,7 @@ func resourceForwardingGateway() *schema.Resource {
 			},
 			"primary_type": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"NONE",
 					"AUTO",
@@ -110,7 +110,7 @@ func resourceForwardingGateway() *schema.Resource {
 			},
 			"secondary_type": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"NONE",
 					"AUTO",
@@ -130,7 +130,7 @@ func resourceForwardingGateway() *schema.Resource {
 	}
 }
 
-func resourceForwardingGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceZIAForwardingGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient, ok := meta.(*Client)
 	if !ok {
 		return diag.Errorf("unexpected meta type: expected *Client, got %T", meta)
@@ -141,7 +141,7 @@ func resourceForwardingGatewayCreate(ctx context.Context, d *schema.ResourceData
 	req := expandForwardingGateway(d)
 	log.Printf("[INFO] Creating ZTW forwarding gateway \n%+v\n", req)
 
-	resp, _, err := forwarding_gateways.Create(ctx, service, &req)
+	resp, _, err := zia_forwarding_gateway.Create(ctx, service, &req)
 	if err != nil {
 		return diag.FromErr(err)
 	}
@@ -149,10 +149,10 @@ func resourceForwardingGatewayCreate(ctx context.Context, d *schema.ResourceData
 	d.SetId(strconv.Itoa(resp.ID))
 	_ = d.Set("gateway_id", resp.ID)
 
-	return resourceForwardingGatewayRead(ctx, d, meta)
+	return resourceZIAForwardingGatewayRead(ctx, d, meta)
 }
 
-func resourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceZIAForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -160,7 +160,7 @@ func resourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, 
 	if !ok {
 		return diag.FromErr(fmt.Errorf("no ZTW forwarding gateway id is set"))
 	}
-	resp, _, err := forwarding_gateways.Get(ctx, service, id)
+	resp, _, err := zia_forwarding_gateway.Get(ctx, service, id)
 	if err != nil {
 		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
 			log.Printf("[WARN] Removing ZTW forwarding gateway %s from state because it no longer exists in ZTW", d.Id())
@@ -193,7 +193,7 @@ func resourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, 
 	return nil
 }
 
-func resourceForwardingGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceZIAForwardingGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -203,20 +203,20 @@ func resourceForwardingGatewayUpdate(ctx context.Context, d *schema.ResourceData
 	}
 	log.Printf("[INFO] Updating ZTW forwarding gateway ID: %v\n", id)
 	req := expandForwardingGateway(d)
-	if _, _, err := forwarding_gateways.Get(ctx, service, id); err != nil {
+	if _, _, err := zia_forwarding_gateway.Get(ctx, service, id); err != nil {
 		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
 			d.SetId("")
 			return nil
 		}
 	}
-	if _, _, err := forwarding_gateways.Update(ctx, service, id, &req); err != nil {
+	if _, _, err := zia_forwarding_gateway.Update(ctx, service, id, &req); err != nil {
 		return diag.FromErr(err)
 	}
 
-	return resourceForwardingGatewayRead(ctx, d, meta)
+	return resourceZIAForwardingGatewayRead(ctx, d, meta)
 }
 
-func resourceForwardingGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceZIAForwardingGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -226,7 +226,7 @@ func resourceForwardingGatewayDelete(ctx context.Context, d *schema.ResourceData
 	}
 	log.Printf("[INFO] Deleting ZTW forwarding gateway ID: %v\n", (d.Id()))
 
-	if _, err := forwarding_gateways.Delete(ctx, service, id); err != nil {
+	if _, err := zia_forwarding_gateway.Delete(ctx, service, id); err != nil {
 		return diag.FromErr(err)
 	}
 	d.SetId("")
@@ -235,9 +235,9 @@ func resourceForwardingGatewayDelete(ctx context.Context, d *schema.ResourceData
 	return nil
 }
 
-func expandForwardingGateway(d *schema.ResourceData) forwarding_gateways.ECGateway {
+func expandForwardingGateway(d *schema.ResourceData) zia_forwarding_gateway.ECGateway {
 	id, _ := getIntFromResourceData(d, "gateway_id")
-	result := forwarding_gateways.ECGateway{
+	result := zia_forwarding_gateway.ECGateway{
 		ID:                id,
 		Name:              d.Get("name").(string),
 		Description:       d.Get("description").(string),
