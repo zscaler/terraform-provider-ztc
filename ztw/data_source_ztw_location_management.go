@@ -7,7 +7,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/locationmanagement/location"
 )
 
@@ -118,7 +117,7 @@ func dataSourceLocationManagement() *schema.Resource {
 				Computed:    true,
 				Description: "Indicates whether to exclude this location from manual location groups when created",
 			},
-			"public_cloud_account_id": UIDNameSchema(),
+			// "public_cloud_account_id": UIDNameSchema(),
 		},
 	}
 }
@@ -171,9 +170,9 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 		_ = d.Set("exclude_from_dynamic_groups", resp.ExcludeFromDynamicGroups)
 		_ = d.Set("exclude_from_manual_groups", resp.ExcludeFromManualGroups)
 
-		if err := d.Set("public_cloud_account_id", flattenIDNameExternalID(resp.PublicCloudAccountID)); err != nil {
-			return diag.FromErr(err)
-		}
+		// if err := d.Set("public_cloud_account_id", flattenIDNameExternalID(resp.PublicCloudAccountID)); err != nil {
+		// 	return diag.FromErr(err)
+		// }
 	} else {
 		return diag.Errorf("couldn't find any location with name '%s'", name)
 	}
@@ -181,6 +180,7 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
+/*
 func flattenIDNameExternalID(list []common.CommonIDNameExternalID) []interface{} {
 	flattenedList := make([]interface{}, len(list))
 	for i, val := range list {
@@ -199,3 +199,4 @@ func flattenIDNameExternalID(list []common.CommonIDNameExternalID) []interface{}
 	}
 	return flattenedList
 }
+*/
