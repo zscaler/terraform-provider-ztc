@@ -1,7 +1,6 @@
 [![Release](https://github.com/zscaler/terraform-provider-ztw/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/zscaler/terraform-provider-ztw/actions/workflows/release.yml)
 [![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zscaler/terraform-provider-ztw)](https://github.com/zscaler/terraform-provider-ztw/blob/master/.go-version)
 [![Go Report Card](https://goreportcard.com/badge/github.com/zscaler/terraform-provider-ztw)](https://goreportcard.com/report/github.com/zscaler/terraform-provider-ztw)
-[![codecov](https://codecov.io/gh/zscaler/terraform-provider-ztw/graph/badge.svg?token=A9J4AJS7F5)](https://codecov.io/gh/zscaler/terraform-provider-ztw)
 [![License](https://img.shields.io/github/license/zscaler/terraform-provider-ztw?color=blue)](https://github.com/zscaler/terraform-provider-ztw/blob/master/LICENSE)
 [![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
 [![Slack](https://img.shields.io/badge/Join%20Our%20Community-Slack-blue)](https://forms.gle/3iMJvVmJDvmUy36q9)

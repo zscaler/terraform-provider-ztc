@@ -14,12 +14,12 @@ import (
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 )
 
-func resourceZIAForwardingGateway() *schema.Resource {
+func resourceForwardingGateway() *schema.Resource {
 	return &schema.Resource{
-		CreateContext: resourceZIAForwardingGatewayCreate,
-		ReadContext:   resourceZIAForwardingGatewayRead,
-		UpdateContext: resourceZIAForwardingGatewayUpdate,
-		DeleteContext: resourceZIAForwardingGatewayDelete,
+		CreateContext: resourceForwardingGatewayCreate,
+		ReadContext:   resourceForwardingGatewayRead,
+		UpdateContext: resourceForwardingGatewayUpdate,
+		DeleteContext: resourceForwardingGatewayDelete,
 		Importer: &schema.ResourceImporter{
 			StateContext: func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
 				zClient := meta.(*Client)
@@ -130,7 +130,7 @@ func resourceZIAForwardingGateway() *schema.Resource {
 	}
 }
 
-func resourceZIAForwardingGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceForwardingGatewayCreate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient, ok := meta.(*Client)
 	if !ok {
 		return diag.Errorf("unexpected meta type: expected *Client, got %T", meta)
@@ -149,10 +149,10 @@ func resourceZIAForwardingGatewayCreate(ctx context.Context, d *schema.ResourceD
 	d.SetId(strconv.Itoa(resp.ID))
 	_ = d.Set("gateway_id", resp.ID)
 
-	return resourceZIAForwardingGatewayRead(ctx, d, meta)
+	return resourceForwardingGatewayRead(ctx, d, meta)
 }
 
-func resourceZIAForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -193,7 +193,7 @@ func resourceZIAForwardingGatewayRead(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func resourceZIAForwardingGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceForwardingGatewayUpdate(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
@@ -213,10 +213,10 @@ func resourceZIAForwardingGatewayUpdate(ctx context.Context, d *schema.ResourceD
 		return diag.FromErr(err)
 	}
 
-	return resourceZIAForwardingGatewayRead(ctx, d, meta)
+	return resourceForwardingGatewayRead(ctx, d, meta)
 }
 
-func resourceZIAForwardingGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func resourceForwardingGatewayDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 

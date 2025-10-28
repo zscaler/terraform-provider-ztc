@@ -10,9 +10,9 @@ import (
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 )
 
-func dataSourceZIAForwardingGateway() *schema.Resource {
+func dataSourceForwardingGateway() *schema.Resource {
 	return &schema.Resource{
-		ReadContext: dataSourceZIAForwardingGatewayRead,
+		ReadContext: dataSourceForwardingGatewayRead,
 		Schema: map[string]*schema.Schema{
 			"id": {
 				Type:        schema.TypeInt,
@@ -80,7 +80,7 @@ func dataSourceZIAForwardingGateway() *schema.Resource {
 	}
 }
 
-func dataSourceZIAForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+func dataSourceForwardingGatewayRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
 	zClient := meta.(*Client)
 	service := zClient.Service
 
