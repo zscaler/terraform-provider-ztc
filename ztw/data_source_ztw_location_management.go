@@ -189,7 +189,7 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 		_ = d.Set("exclude_from_dynamic_groups", resp.ExcludeFromDynamicGroups)
 		_ = d.Set("exclude_from_manual_groups", resp.ExcludeFromManualGroups)
 
-		if err := d.Set("public_cloud_account_id", flattenListCommonIDNameExternalID(resp.PublicCloudAccountID)); err != nil {
+		if err := d.Set("public_cloud_account_id", flattenIDNameExternalID(resp.PublicCloudAccountID)); err != nil {
 			return diag.FromErr(err)
 		}
 	} else {
@@ -199,7 +199,7 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-func flattenIDNameExternalID(item common.IDName) []interface{} {
+func flattenIDNameExternalID(item *common.CommonIDName) []interface{} {
 	r := map[string]interface{}{
 		"id":   item.ID,
 		"name": item.Name,
