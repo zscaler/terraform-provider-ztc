@@ -119,6 +119,8 @@ func ZTWProvider() *schema.Provider {
 			"ztw_ip_pool_groups":              resourceIPPoolGroups(),
 			"ztw_network_services":            resourceNetworkServices(),
 			"ztw_network_service_groups":      resourceNetworkServiceGroups(),
+			"ztw_account_groups":              resourceAccountGroup(),
+			"ztw_public_cloud_info":           resourcePublicCloudInfo(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -137,6 +139,9 @@ func ZTWProvider() *schema.Provider {
 			"ztw_ip_pool_groups":              dataSourceIPPoolGroups(),
 			"ztw_network_services":            dataSourceNetworkServices(),
 			"ztw_network_service_groups":      dataSourceNetworkServiceGroups(),
+			"ztw_account_groups":              dataSourceAccountGroup(),
+			"ztw_public_cloud_info":           dataSourcePublicCloudInfo(),
+			"ztw_supported_regions":           dataSourceSupportedRegions(),
 		},
 	}
 

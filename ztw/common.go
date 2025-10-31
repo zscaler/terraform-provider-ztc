@@ -178,6 +178,25 @@ func flattenIDNameExtensions(list []common.IDNameExtensions) []interface{} {
 	return flattenedList
 }
 
+func flattenListCommonIDNameExternalID(gp []common.CommonIDNameExternalID) []map[string]interface{} {
+	if gp == nil {
+		return nil
+	}
+	result := make([]map[string]interface{}, 0, len(gp))
+	for _, item := range gp {
+		result = append(result, map[string]interface{}{
+			"id":               item.ID,
+			"name":             item.Name,
+			"is_name_l10n_tag": item.IsNameL10nTag,
+			"extensions":       item.Extensions,
+			"deleted":          item.Deleted,
+			"external_id":      item.ExternalID,
+			"association_time": item.AssociationTime,
+		})
+	}
+	return result
+}
+
 func IdSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,

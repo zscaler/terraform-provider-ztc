@@ -29,12 +29,12 @@ func resourceNetworkServices() *schema.Resource {
 				id := d.Id()
 				idInt, parseIDErr := strconv.ParseInt(id, 10, 64)
 				if parseIDErr == nil {
-					_ = d.Set("network_service_id", idInt)
+					_ = d.Set("service_id", idInt)
 				} else {
 					resp, err := networkservices.GetByName(ctx, service, id)
 					if err == nil {
 						d.SetId(strconv.Itoa(resp.ID))
-						_ = d.Set("network_service_id", resp.ID)
+						_ = d.Set("service_id", resp.ID)
 					} else {
 						return []*schema.ResourceData{d}, err
 					}
@@ -48,7 +48,7 @@ func resourceNetworkServices() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"network_service_id": {
+			"service_id": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -100,7 +100,7 @@ func resourceNetworkServicesCreate(ctx context.Context, d *schema.ResourceData, 
 	}
 	log.Printf("[INFO] Created ztw network services request. ID: %v\n", resp)
 	d.SetId(strconv.Itoa(resp.ID))
-	_ = d.Set("network_service_id", resp.ID)
+	_ = d.Set("service_id", resp.ID)
 
 	return resourceNetworkServicesRead(ctx, d, meta)
 }
@@ -109,7 +109,7 @@ func resourceNetworkServicesRead(ctx context.Context, d *schema.ResourceData, me
 	zClient := meta.(*Client)
 	service := zClient.Service
 
-	id, ok := getIntFromResourceData(d, "network_service_id")
+	id, ok := getIntFromResourceData(d, "service_id")
 	if !ok {
 		return diag.FromErr(fmt.Errorf("no network services id is set"))
 	}
@@ -127,7 +127,7 @@ func resourceNetworkServicesRead(ctx context.Context, d *schema.ResourceData, me
 	log.Printf("[INFO] Getting network services :\n%+v\n", resp)
 
 	d.SetId(fmt.Sprintf("%d", resp.ID))
-	_ = d.Set("network_service_id", resp.ID)
+	_ = d.Set("service_id", resp.ID)
 	_ = d.Set("name", resp.Name)
 	_ = d.Set("tag", resp.Tag)
 	_ = d.Set("description", resp.Description)
@@ -156,7 +156,7 @@ func resourceNetworkServicesUpdate(ctx context.Context, d *schema.ResourceData, 
 	zClient := meta.(*Client)
 	service := zClient.Service
 
-	id, ok := getIntFromResourceData(d, "network_service_id")
+	id, ok := getIntFromResourceData(d, "service_id")
 	if !ok {
 		log.Printf("[ERROR] network service ID not set: %v\n", id)
 	}
@@ -179,7 +179,7 @@ func resourceNetworkServicesDelete(ctx context.Context, d *schema.ResourceData, 
 	zClient := meta.(*Client)
 	service := zClient.Service
 
-	id, ok := getIntFromResourceData(d, "network_service_id")
+	id, ok := getIntFromResourceData(d, "service_id")
 	if !ok {
 		log.Printf("[ERROR] network service id ID not set: %v\n", id)
 	}
@@ -209,7 +209,7 @@ func resourceNetworkServicesDelete(ctx context.Context, d *schema.ResourceData, 
 }
 
 func expandNetworkServices(d *schema.ResourceData) networkservices.NetworkServices {
-	id, _ := getIntFromResourceData(d, "network_service_id")
+	id, _ := getIntFromResourceData(d, "service_id")
 	result := networkservices.NetworkServices{
 		ID:            id,
 		Name:          d.Get("name").(string),

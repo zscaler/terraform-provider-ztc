@@ -178,7 +178,9 @@ func resourceIPSourceGroupsGroupsDelete(ctx context.Context, d *schema.ResourceD
 }
 
 func expandFWIPSourceGroups(d *schema.ResourceData) ipsourcegroups.IPSourceGroups {
+	id, _ := getIntFromResourceData(d, "group_id")
 	return ipsourcegroups.IPSourceGroups{
+		ID:          id,
 		Name:        d.Get("name").(string),
 		Description: d.Get("description").(string),
 		IPAddresses: SetToStringList(d, "ip_addresses"),

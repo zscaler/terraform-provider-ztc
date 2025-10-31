@@ -7,6 +7,7 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/locationmanagement/location"
 )
 
@@ -117,7 +118,26 @@ func dataSourceLocationManagement() *schema.Resource {
 				Computed:    true,
 				Description: "Indicates whether to exclude this location from manual location groups when created",
 			},
-			// "public_cloud_account_id": UIDNameSchema(),
+			"public_cloud_account_id": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:        schema.TypeInt,
+							Computed:    true,
+							Description: "Prefix of Cloud & Branch Connector location template",
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+							Description: `"Enable XFF Forwarding for a location.
+								When set to true, traffic is passed to Zscaler Cloud via the X-Forwarded-For (XFF) header.
+								Note: For sub-locations, this attribute is a read-only field as the value is inherited from the parent location."`,
+						},
+					},
+				},
+			},
 		},
 	}
 }
@@ -151,7 +171,6 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 		d.SetId(fmt.Sprintf("%d", resp.ID))
 		_ = d.Set("name", resp.Name)
 		_ = d.Set("description", resp.Description)
-		// Note: non_editable is not available in the API response
 		_ = d.Set("parent_id", resp.ParentID)
 		_ = d.Set("enforce_bandwidth_control", resp.EnforceBandwidthControl)
 		_ = d.Set("up_bandwidth", resp.UpBandwidth)
@@ -170,9 +189,9 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 		_ = d.Set("exclude_from_dynamic_groups", resp.ExcludeFromDynamicGroups)
 		_ = d.Set("exclude_from_manual_groups", resp.ExcludeFromManualGroups)
 
-		// if err := d.Set("public_cloud_account_id", flattenIDNameExternalID(resp.PublicCloudAccountID)); err != nil {
-		// 	return diag.FromErr(err)
-		// }
+		if err := d.Set("public_cloud_account_id", flattenListCommonIDNameExternalID(resp.PublicCloudAccountID)); err != nil {
+			return diag.FromErr(err)
+		}
 	} else {
 		return diag.Errorf("couldn't find any location with name '%s'", name)
 	}
@@ -180,23 +199,10 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 	return nil
 }
 
-/*
-func flattenIDNameExternalID(list []common.CommonIDNameExternalID) []interface{} {
-	flattenedList := make([]interface{}, len(list))
-	for i, val := range list {
-		r := map[string]interface{}{
-			"id":               val.ID,
-			"name":             val.Name,
-			"is_name_l10n_tag": val.IsNameL10nTag,
-			"deleted":          val.Deleted,
-			"external_id":      val.ExternalID,
-			"association_time": val.AssociationTime,
-		}
-		if val.Extensions != nil {
-			r["extensions"] = val.Extensions
-		}
-		flattenedList[i] = r
+func flattenIDNameExternalID(item common.IDName) []interface{} {
+	r := map[string]interface{}{
+		"id":   item.ID,
+		"name": item.Name,
 	}
-	return flattenedList
+	return []interface{}{r}
 }
-*/
