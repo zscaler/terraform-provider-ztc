@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
-	"github.com/zscaler/terraform-provider-ztw/ztw"
-	"github.com/zscaler/terraform-provider-ztw/ztw/common"
+	"github.com/zscaler/terraform-provider-ztc/ztc"
+	"github.com/zscaler/terraform-provider-ztc/ztc/common"
 )
 
 func main() {
@@ -20,16 +20,16 @@ func main() {
 	if len(os.Args) > 1 && os.Args[1] == "debug" {
 		debug = true
 	}
-	log.Printf(`ZTW Terraform Provider
+	log.Printf(`ZTC Terraform Provider
 
 Version %s
 
-https://registry.terraform.io/providers/zscaler/ztw/latest/docs
+https://registry.terraform.io/providers/zscaler/ztc/latest/docs
 
 `, common.Version())
 	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: ztw.ZTWProvider,
-		ProviderAddr: "registry.terraform.io/zscaler/ztw",
+		ProviderFunc: ztc.ZTCProvider,
+		ProviderAddr: "registry.terraform.io/zscaler/ztc",
 		Debug:        debug,
 	})
 }

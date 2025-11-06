@@ -22,7 +22,7 @@ func getEnvVarOrFail(k string) string {
 }
 
 func main() {
-	log.Printf("[INFO] Initializing ZTW activation client")
+	log.Printf("[INFO] Initializing ZTC activation client")
 
 	useLegacy := strings.ToLower(os.Getenv("ZSCALER_USE_LEGACY_CLIENT")) == "true"
 
@@ -44,10 +44,10 @@ func main() {
 			ztw.WithZtwPassword(password),
 			ztw.WithZtwAPIKey(apiKey),
 			ztw.WithZtwCloud(cloud),
-			ztw.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztwActivator", runtime.GOOS, runtime.GOARCH)),
+			ztw.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztcActivator", runtime.GOOS, runtime.GOARCH)),
 		)
 		if err != nil {
-			log.Fatalf("Error creating ZTW configuration: %v", err)
+			log.Fatalf("Error creating ZTC configuration: %v", err)
 		}
 
 		service, err = zscaler.NewLegacyZtwClient(ztwCfg)
@@ -67,7 +67,7 @@ func main() {
 			zscaler.WithClientSecret(clientSecret),
 			zscaler.WithVanityDomain(vanityDomain),
 			zscaler.WithZscalerCloud(cloud),
-			zscaler.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztwActivator", runtime.GOOS, runtime.GOARCH)),
+			zscaler.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztcActivator", runtime.GOOS, runtime.GOARCH)),
 		)
 		if err != nil {
 			log.Fatalf("[ERROR] Failed to build OneAPI configuration: %v", err)

@@ -12,7 +12,7 @@ page_title: "Resource Importer"
 
 `zscaler-terraformer` is A CLI tool that generates ``tf`` and ``tfstate`` files based on existing ZPA and/or ZIA resources.
 It does this by using your respective API credentials in each platform to retrieve your configurations from the [ZPA API](https://help.zscaler.com/zpa/getting-started-zpa-api) and/or [ZIA API](https://help.zscaler.com/zia/getting-started-zia-api) and converting them to Terraform configurations so that it can be used with the
-[ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest) and/or [ZIA Terraform Provider](https://registry.terraform.io/providers/zscaler/ztw/latest)
+[ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest) and/or [ZIA Terraform Provider](https://registry.terraform.io/providers/zscaler/ztc/latest)
 
 This tool is ideal if you already have ZPA and/or ZIA resources defined but want to
 start managing them via Terraform, and don't want to spend the time to manually
@@ -26,30 +26,30 @@ write the Terraform configuration to describe them.
 
 As of version v4.0.0, this provider supports authentication via the new Zscaler API framework [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi)
 
-Zscaler OneAPI uses the OAuth 2.0 authorization framework to provide secure access to Zscaler Zero Trust Workload (ZTW) APIs. OAuth 2.0 allows third-party applications to obtain controlled access to protected resources using access tokens. OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token and obtain access to the API resources, without any user authentication involved in the process.
+Zscaler OneAPI uses the OAuth 2.0 authorization framework to provide secure access to Zscaler Zero Trust Cloud (ZTC) APIs. OAuth 2.0 allows third-party applications to obtain controlled access to protected resources using access tokens. OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token and obtain access to the API resources, without any user authentication involved in the process.
 
 **NOTE** As of version v2.0.0, Zscaler-Terraformer offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
 
-**NOTE** Notice that OneAPI and Zidentity is NOT currently supported for the following ZIA/ZTW and ZPA clouds respectively: `zscalergov` and `zscalerten` or `GOV` and `GOVUS`. Refer to the [Legacy API Framework](#legacy-api-framework) for more information on how authenticate to these environments
+**NOTE** Notice that OneAPI and Zidentity is NOT currently supported for the following ZIA/ZTC and ZPA clouds respectively: `zscalergov` and `zscalerten` or `GOV` and `GOVUS`. Refer to the [Legacy API Framework](#legacy-api-framework) for more information on how authenticate to these environments
 
 ``zscaler-terraformer`` for ZPA supports the following environment variables:
 
 ## Authentication
 
-Both ZPA, ZIA and ZTW follow its respective authentication methods as described in the Terraform registry documentation:
+Both ZPA, ZIA and ZTC follow its respective authentication methods as described in the Terraform registry documentation:
 
 * [ZPA Terraform Provider](https://registry.terraform.io/providers/zscaler/zpa/latest/docs)
 * [ZIA Terraform Provider](https://registry.terraform.io/providers/zscaler/zia/latest/docs)
-* [ZTW Terraform Provider](https://registry.terraform.io/providers/zscaler/ztw/latest/docs)
+* [ZTC Terraform Provider](https://registry.terraform.io/providers/zscaler/ztc/latest/docs)
 
 For details on how to generate API credentials visit:
 
 * ZPA [Getting Started](https://help.zscaler.com/zpa/getting-started-zpa-api)
 * ZIA [Getting Started](https://help.zscaler.com/zia/getting-started-zia-api)
-* ZTW [Getting Started](https://help.zscaler.com/cloud-branch-connector/getting-started-cloud-branch-connector-api)
+* ZTC [Getting Started](https://help.zscaler.com/cloud-branch-connector/getting-started-cloud-branch-connector-api)
 
 !> **A note on storing your credentials securely**: We recommend that you store
-your ZPA, ZIA and/or ZTW credentials as environment variables as
+your ZPA, ZIA and/or ZTC credentials as environment variables as
 demonstrated below.
 
 ## Examples Usage - ZPA OneAPI Client Secret Authentication (Environment Variables)
@@ -579,7 +579,7 @@ zscaler-terraformer --progress import --resources "zia"
 
 ## Important Notes and Limitations
 
-The Zscaler Terraformer tool is designed to **facilitate the adoption** of Zscaler's [ZIA](https://registry.terraform.io/providers/zscaler/ztw/latest/docs) and [ZPA](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) Terraform providers by assisting with the initial heavy lift of writing Terraform code and obtaining existing configurations from your tenants.
+The Zscaler Terraformer tool is designed to **facilitate the adoption** of Zscaler's [ZIA](https://registry.terraform.io/providers/zscaler/ztc/latest/docs) and [ZPA](https://registry.terraform.io/providers/zscaler/zpa/latest/docs) Terraform providers by assisting with the initial heavy lift of writing Terraform code and obtaining existing configurations from your tenants.
 
 ### Key Considerations
 
@@ -763,36 +763,36 @@ In the future this process will be further automated; however for now, it is a m
 allow flexibility in directory structure.
 
 
-## ZTW Supported Resources
+## ZTC Supported Resources
 
 Any resources not listed are currently not supported.
 
 Last updated October xx, 2025
 
-Use the following command once the tool is installed to visualize the table of supported ZTW resources:
+Use the following command once the tool is installed to visualize the table of supported ZTC resources:
 
 ```shell
-zscaler-terraformer --supported-resources="ztw"
+zscaler-terraformer --supported-resources="ztc"
 ```
 
 | Resource | Resource Scope | Generate Supported | Import Supported |
 |----------|-----------|----------|----------|
-| [ztw_forwarding_gateway](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_forwarding_gateway) | Forward Gateway | ✅ | ✅ |
-| [ztw_ip_destination_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_ip_destination_groups) | Policy Resources | ✅ | ✅ |
-| [ztw_ip_source_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_ip_source_groups) | Policy Resources | ✅ | ✅ |
-| [ztw_ip_pool_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_ip_pool_groups) | Policy Resources  | ✅ | ✅ |
-| [ztw_network_service_groups](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_network_service_groups) | Policy Resources  | ✅ | ✅ |
-| [ztw_network_services](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_network_services) | Policy Resources  | ✅ | ✅ |
-| [ztw_location_template](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_location_template) | Location Management | ✅ | ✅ |
-| [ztw_provisioning_url](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_provisioning_url) | Provisioning | ✅ | ✅ |
-| [ztw_traffic_forwarding_rule](https://registry.terraform.io/providers/zscaler/ztw/latest/docs/resources/ztw_traffic_forwarding_rule) | Policy Management| ✅ | ✅ |
+| [ztc_forwarding_gateway](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_forwarding_gateway) | Forward Gateway | ✅ | ✅ |
+| [ztc_ip_destination_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_ip_destination_groups) | Policy Resources | ✅ | ✅ |
+| [ztc_ip_source_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_ip_source_groups) | Policy Resources | ✅ | ✅ |
+| [ztc_ip_pool_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_ip_pool_groups) | Policy Resources  | ✅ | ✅ |
+| [ztc_network_service_groups](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_network_service_groups) | Policy Resources  | ✅ | ✅ |
+| [ztc_network_services](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_network_services) | Policy Resources  | ✅ | ✅ |
+| [ztc_location_template](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_location_template) | Location Management | ✅ | ✅ |
+| [ztc_provisioning_url](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_provisioning_url) | Provisioning | ✅ | ✅ |
+| [ztc_traffic_forwarding_rule](https://registry.terraform.io/providers/zscaler/ztc/latest/docs/resources/ztc_traffic_forwarding_rule) | Policy Management| ✅ | ✅ |
 
 ## Testing
 
 To ensure changes don't introduce regressions this tool uses an automated test
 suite consisting of HTTP mocks via go-vcr and Terraform configuration files to
 assert against. The premise is that we mock the HTTP responses from the
-ZPA, ZIA and/or ZTW APIs to ensure we don't need to create and delete real resources to
+ZPA, ZIA and/or ZTC APIs to ensure we don't need to create and delete real resources to
 test. The Terraform files then allow us to build what the resource structure is
 expected to look like and once the tool parses the API response, we can compare
 that to the static file.

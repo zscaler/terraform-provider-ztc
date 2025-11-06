@@ -1,7 +1,7 @@
-[![Release](https://github.com/zscaler/terraform-provider-ztw/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/zscaler/terraform-provider-ztw/actions/workflows/release.yml)
-[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zscaler/terraform-provider-ztw)](https://github.com/zscaler/terraform-provider-ztw/blob/master/.go-version)
-[![Go Report Card](https://goreportcard.com/badge/github.com/zscaler/terraform-provider-ztw)](https://goreportcard.com/report/github.com/zscaler/terraform-provider-ztw)
-[![License](https://img.shields.io/github/license/zscaler/terraform-provider-ztw?color=blue)](https://github.com/zscaler/terraform-provider-ztw/blob/master/LICENSE)
+[![Release](https://github.com/zscaler/terraform-provider-ztc/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/zscaler/terraform-provider-ztc/actions/workflows/release.yml)
+[![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zscaler/terraform-provider-ztc)](https://github.com/zscaler/terraform-provider-ztc/blob/master/.go-version)
+[![Go Report Card](https://goreportcard.com/badge/github.com/zscaler/terraform-provider-ztc)](https://goreportcard.com/report/github.com/zscaler/terraform-provider-ztc)
+[![License](https://img.shields.io/github/license/zscaler/terraform-provider-ztc?color=blue)](https://github.com/zscaler/terraform-provider-ztc/blob/master/LICENSE)
 [![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
 [![Slack](https://img.shields.io/badge/Join%20Our%20Community-Slack-blue)](https://forms.gle/3iMJvVmJDvmUy36q9)
 
@@ -13,7 +13,7 @@
     <img src="https://raw.githubusercontent.com/zscaler/zscaler-terraformer/master/images/zscaler_terraformer-logo.svg" alt="Zscaler logo" title="Zscaler" height="50" />
 </a>
 
-Terraform Provider for ☁️Zero Trust Workload (ZTW)☁️
+Terraform Provider for ☁️Zero Trust Cloud (ZTC)☁️
 =========================================================================
 
 ⚠️  **Attention:** This provider is not affiliated with, nor supported by Zscaler in any way.
@@ -32,12 +32,12 @@ Requirements
 Building The Provider (Terraform v0.12+)
 ---------------------
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztw`
+Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztc`
 
 ```sh
 mkdir -p $GOPATH/src/github.com/terraform-providers
 cd $GOPATH/src/github.com/terraform-providers
-git clone https://github.com/terraform-providers/terraform-provider-ztw.git
+git clone https://github.com/terraform-providers/terraform-provider-ztc.git
 ```
 
 To clone on windows
@@ -45,13 +45,13 @@ To clone on windows
 ```sh
 mkdir %GOPATH%\src\github.com\terraform-providers
 cd %GOPATH%\src\github.com\terraform-providers
-git clone https://github.com/terraform-providers/terraform-provider-ztw.git
+git clone https://github.com/terraform-providers/terraform-provider-ztc.git
 ```
 
 Enter the provider directory and build the provider
 
 ```sh
-cd $GOPATH/src/github.com/terraform-providers/terraform-provider-ztw
+cd $GOPATH/src/github.com/terraform-providers/terraform-provider-ztc
 make fmt
 make build
 ```
@@ -59,7 +59,7 @@ make build
 To build on Windows
 
 ```sh
-cd %GOPATH%\src\github.com\terraform-providers\terraform-provider-ztw
+cd %GOPATH%\src\github.com\terraform-providers\terraform-provider-ztc
 go fmt
 go install
 ```
@@ -80,31 +80,31 @@ make build13
 Run the following commands for cmd:
 
 ```sh
-cd %GOPATH%\src\github.com\terraform-providers\terraform-provider-ztw
+cd %GOPATH%\src\github.com\terraform-providers\terraform-provider-ztc
 go fmt
 go install
-xcopy "%GOPATH%\bin\terraform-provider-ztw.exe" "%APPDATA%\terraform.d\plugins\zscaler.com\ztw\ztw\1.0.0\windows_amd64\" /Y
+xcopy "%GOPATH%\bin\terraform-provider-ztc.exe" "%APPDATA%\terraform.d\plugins\zscaler.com\ztc\ztc\1.0.0\windows_amd64\" /Y
 ```
 
 Run the following commands if using powershell:
 
 ```sh
-cd "$env:GOPATH\src\github.com\terraform-providers\terraform-provider-ztw"
+cd "$env:GOPATH\src\github.com\terraform-providers\terraform-provider-ztc"
 go fmt
 go install
-xcopy "$env:GOPATH\bin\terraform-provider-ztw.exe" "$env:APPDATA\terraform.d\plugins\zscaler.com\ztw\ztw\1.0.0\windows_amd64\" /Y
+xcopy "$env:GOPATH\bin\terraform-provider-ztc.exe" "$env:APPDATA\terraform.d\plugins\zscaler.com\ztc\ztc\1.0.0\windows_amd64\" /Y
 ```
 
-**Note**: For contributions created from forks, the repository should still be cloned under the `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztw` directory to allow the provided `make` commands to properly run, build, and test this project.
+**Note**: For contributions created from forks, the repository should still be cloned under the `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztc` directory to allow the provided `make` commands to properly run, build, and test this project.
 
-Using Zero Trust Workload (Terraform v0.12+)
+Using Zero Trust Cloud (Terraform v0.12+)
 ----------------------------------------------------------
 
 Activate the provider by adding the following to `~/.terraformrc` on Linux/Unix.
 
 ```sh
 providers {
-  "ztw" = "$GOPATH/bin/terraform-provider-ztw"
+  "ztc" = "$GOPATH/bin/terraform-provider-ztc"
 }
 ```
 
@@ -116,13 +116,13 @@ In Windows, for terraform 0.11.9 and higher use the following at '%APPDATA%\terr
 
 ```sh
 providers {
-  "ztw" = "$GOPATH/bin/terraform-provider-ztw.exe"
+  "ztc" = "$GOPATH/bin/terraform-provider-ztc.exe"
 }
 ```
 
 If the rc file is not present, it should be created
 
-Using Zero Trust Workload (Terraform v0.13+)
+Using Zero Trust Cloud (Terraform v0.13+)
 -----------------------------------------------------------
 
 For Terraform v0.13+, to use a locally built version of a provider you must add the following snippet to every module
@@ -131,8 +131,8 @@ that you want to use the provider in.
 ```hcl
 terraform {
   required_providers {
-    ztw = {
-      source  = "zscaler.com/ztw/ztw"
+    ztc = {
+      source  = "zscaler.com/ztc/ztc"
       version = "0.1.0"
     }
   }
@@ -144,12 +144,12 @@ Examples
 
 Visit [here](<https://github.com/>
 
-/terraform-provider-ztw/tree/master/website/docs/) for the complete documentation for all resources on github.
+/terraform-provider-ztc/tree/master/website/docs/) for the complete documentation for all resources on github.
 
 Issues
 ======
 
-Please feel free to open an issue using [Github Issues](https://github.com/zscaler/terraform-provider-ztw/issues) if you run into any problems using this ztw Terraform provider.
+Please feel free to open an issue using [Github Issues](https://github.com/zscaler/terraform-provider-ztc/issues) if you run into any problems using this ztc Terraform provider.
 
 Developing the Provider
 ---------------------------
@@ -161,7 +161,7 @@ To compile the provider, run `make build`. This will build the provider and put 
 ```sh
 $ make build
 ...
-$ $GOPATH/bin/terraform-provider-ztw
+$ $GOPATH/bin/terraform-provider-ztc
 ...
 ```
 

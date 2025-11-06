@@ -1,4 +1,4 @@
-name: ZTW Test
+name: ZTC Test
 on:
   pull_request:
     types: [opened, synchronize]
@@ -22,14 +22,14 @@ permissions:
   pull-requests: write
 
 jobs:
-  ztw-zs3tests:
+  ztc-zs3tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         goVersion: ["1.24"]
         environment:
-          - ZTW_ZS3
+          - ZTC_ZS3
     environment: ${{ matrix.environment }}
     steps:
       - name: Checkout code
@@ -74,7 +74,7 @@ jobs:
           timeout_minutes: 120
           command: |
             make sweep
-            make test:integration:ztw
+            make test:integration:ztc
             make sweep
         env:
           ZSCALER_CLIENT_ID: ${{ secrets.ZSCALER_CLIENT_ID }}
@@ -82,4 +82,4 @@ jobs:
           ZSCALER_VANITY_DOMAIN: ${{ secrets.ZSCALER_VANITY_DOMAIN }}
           ZSCALER_CLOUD: ${{ secrets.ZSCALER_CLOUD }}
           TF_ACC: ${{ secrets.TF_ACC }}
-          ZTW_ACC_TEST_FORCE_SWEEPERS: ${{ secrets.ZTW_ACC_TEST_FORCE_SWEEPERS }}
+          ZTC_ACC_TEST_FORCE_SWEEPERS: ${{ secrets.ZTC_ACC_TEST_FORCE_SWEEPERS }}

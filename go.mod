@@ -1,4 +1,4 @@
-module github.com/zscaler/terraform-provider-ztw
+module github.com/zscaler/terraform-provider-ztc
 
 go 1.24.0
 
@@ -13,7 +13,7 @@ require (
 	github.com/hashicorp/terraform-plugin-docs v0.23.0
 	github.com/hashicorp/terraform-plugin-sdk v1.17.2
 	github.com/hashicorp/terraform-plugin-sdk/v2 v2.38.1
-	github.com/zscaler/zscaler-sdk-go/v3 v3.8.1
+	github.com/zscaler/zscaler-sdk-go/v3 v3.8.2
 )
 
 require (

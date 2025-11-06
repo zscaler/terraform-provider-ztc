@@ -1,13 +1,13 @@
 SWEEP?=global
 TEST?=$$(go list ./... |grep -v 'vendor')
-GOFMT_FILES?=$$(find . -name '*.go' |grep "ztw/")
+GOFMT_FILES?=$$(find . -name '*.go' |grep "ztc/")
 WEBSITE_REPO=github.com/hashicorp/terraform-website
-PKG_NAME=ztw
+PKG_NAME=ztc
 GOFMT:=gofumpt
 TFPROVIDERLINT=tfproviderlint
 STATICCHECK=staticcheck
 TF_PLUGIN_DIR=~/.terraform.d/plugins
-ZTW_PROVIDER_NAMESPACE=zscaler.com/ztw/ztw
+ztc_PROVIDER_NAMESPACE=zscaler.com/ztc/ztc
 
 # Expression to match against tests
 # go test -run <filter>
@@ -46,23 +46,23 @@ test:
 testacc:
 	TF_ACC=1 go test $(TEST) $(TESTARGS) $(TEST_FILTER) -timeout 120m
 
-test\:integration\:ztw:
-	@echo "$(COLOR_ZSCALER)Running ztw integration tests...$(COLOR_NONE)"
-	go test -v -race -cover -coverprofile=ztwcoverage.out -covermode=atomic ./ztw -parallel 1 -timeout 120m
-	go tool cover -html=ztwcoverage.out -o ztwcoverage.html
-	go tool cover -func ztwcoverage.out | grep total:
+test\:integration\:ztc:
+	@echo "$(COLOR_ZSCALER)Running ztc integration tests...$(COLOR_NONE)"
+	go test -v -race -cover -coverprofile=ztccoverage.out -covermode=atomic ./ztc -parallel 1 -timeout 120m
+	go tool cover -html=ztccoverage.out -o ztccoverage.html
+	go tool cover -func ztccoverage.out | grep total:
 
 build13: GOOS=$(shell go env GOOS)
 build13: GOARCH=$(shell go env GOARCH)
 ifeq ($(OS),Windows_NT)  # is Windows_NT on XP, 2000, 7, Vista, 10...
-build13: DESTINATION=$(APPDATA)/terraform.d/plugins/$(ZTW_PROVIDER_NAMESPACE)/0.1.0/$(GOOS)_$(GOARCH)
+build13: DESTINATION=$(APPDATA)/terraform.d/plugins/$(ztc_PROVIDER_NAMESPACE)/0.1.0/$(GOOS)_$(GOARCH)
 else
-build13: DESTINATION=$(HOME)/.terraform.d/plugins/$(ZTW_PROVIDER_NAMESPACE)/0.1.0/$(GOOS)_$(GOARCH)
+build13: DESTINATION=$(HOME)/.terraform.d/plugins/$(ztc_PROVIDER_NAMESPACE)/0.1.0/$(GOOS)_$(GOARCH)
 endif
 build13: fmtcheck
 	@echo "==> Installing plugin to $(DESTINATION)"
 	@mkdir -p $(DESTINATION)
-	go build -o $(DESTINATION)/terraform-provider-ztw_v0.1.0
+	go build -o $(DESTINATION)/terraform-provider-ztc_v0.1.0
 
 vet:
 	@echo "==> Checking source code against go vet and staticcheck"
@@ -132,18 +132,18 @@ tools-update:
 	@go install github.com/bflad/tfproviderlint/cmd/tfproviderlint@v0.31.0
 	@go install honnef.co/go/tools/cmd/staticcheck@v0.4.7
 
-ztwActivator: GOOS=$(shell go env GOOS)
-ztwActivator: GOARCH=$(shell go env GOARCH)
+ztcActivator: GOOS=$(shell go env GOOS)
+ztcActivator: GOARCH=$(shell go env GOARCH)
 ifeq ($(OS),Windows_NT)  # is Windows_NT on XP, 2000, 7, Vista, 10...
-ztwActivator: DESTINATION=C:\Windows\System32
+ztcActivator: DESTINATION=C:\Windows\System32
 else
-ztwActivator: DESTINATION=/usr/local/bin
+ztcActivator: DESTINATION=/usr/local/bin
 endif
-ztwActivator:
-	@echo "==> Installing ztwActivator cli $(DESTINATION)"
+ztcActivator:
+	@echo "==> Installing ztcActivator cli $(DESTINATION)"
 	@mkdir -p $(DESTINATION)
-	@rm -f $(DESTINATION)/ztwActivator
-	@go build -o $(DESTINATION)/ztwActivator  ./cli/ztwActivator.go
+	@rm -f $(DESTINATION)/ztcActivator
+	@go build -o $(DESTINATION)/ztcActivator  ./cli/ztcActivator.go
 
 website:
 ifeq (,$(wildcard $(GOPATH)/src/$(WEBSITE_REPO)))
