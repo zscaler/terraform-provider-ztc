@@ -89,7 +89,7 @@ For the resources and data sources examples, please check the [examples](https:/
 
 ## Authentication - OneAPI New Framework
 
-As of version v0.1.0, this provider supports authentication via the new Zscaler API framework [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi)
+This provider supports authentication via the new Zscaler API framework [OneAPI](https://help.zscaler.com/oneapi/understanding-oneapi)
 
 Zscaler OneAPI uses the OAuth 2.0 authorization framework to provide secure access to Zero Trust Cloud (ZTC) APIs. OAuth 2.0 allows third-party applications to obtain controlled access to protected resources using access tokens. OneAPI uses the Client Credentials OAuth flow, in which client applications can exchange their credentials with the authorization server for an access token and obtain access to the API resources, without any user authentication involved in the process.
 

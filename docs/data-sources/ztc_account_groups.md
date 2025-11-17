@@ -10,6 +10,8 @@ description: |-
 
 # ztc_account_groups (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/accountGroups-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-amazon-web-services-account-groups)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/accountGroups-get)
 

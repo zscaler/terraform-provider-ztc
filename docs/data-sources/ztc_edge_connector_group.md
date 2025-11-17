@@ -10,6 +10,8 @@ description: |-
 
 # ztc_edge_connector_group (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/cloud-branch-connector-groups#/ecgroup-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-cloud-connector-groups)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/cloud-branch-connector-groups#/ecgroup-get)
 

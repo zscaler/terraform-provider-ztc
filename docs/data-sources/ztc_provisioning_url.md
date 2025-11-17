@@ -10,6 +10,8 @@ description: |-
 
 # ztc_provisioning_url (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/provisioning#/provUrl-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-provisioning-urls)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/provisioning-urls)
 
