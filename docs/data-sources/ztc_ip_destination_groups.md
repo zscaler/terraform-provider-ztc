@@ -10,6 +10,8 @@ description: |-
 
 # ztc_ip_destination_groups (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/ipDestinationGroups-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-ip-destination-groups)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/ip-destination-groups)
 

@@ -10,6 +10,8 @@ description: |-
 
 # ztc_network_service_groups (Resource)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/networkServiceGroups-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-network-service-groups)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/network-service-groups)
 

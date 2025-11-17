@@ -10,6 +10,8 @@ description: |-
 
 # ztc_zia_forwarding_gateway (Resource)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways#/gateways-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways)
 

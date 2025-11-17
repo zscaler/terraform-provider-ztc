@@ -10,6 +10,8 @@ description: |-
 
 # ztc_ip_pool_groups (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/ipGroups-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-ip-pool-groups)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/ip-pool-groups)
 

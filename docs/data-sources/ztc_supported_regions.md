@@ -10,6 +10,8 @@ description: |-
 
 # ztc_supported_regions (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo/supportedRegions-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo/supportedRegions-get)
 

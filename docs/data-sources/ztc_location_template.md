@@ -10,6 +10,8 @@ description: |-
 
 # ztc_location_template (Data Source)
 
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/location-management#/locationTemplate-get)
+
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-location-templates)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/location-templates)
 
