@@ -1,26 +1,26 @@
 ---
 subcategory: "Forwarding Gateways"
 layout: "zscaler"
-page_title: "ZTC: zia_forwarding_gateway"
+page_title: "ZTC: forwarding_gateway"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding
   API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-gateways
-  Creates and manages ZIA and Log Control Forwarding Gateways.
+  Creates and manages ZTC Forwarding Gateways.
 ---
 
-# ztc_zia_forwarding_gateway (Resource)
+# ztc_forwarding_gateway (Resource)
 
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways#/gateways-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways)
 
-Use the **ztc_zia_forwarding_gateway** resource allows the creation and management of ZIA and Log Forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTC traffic forwarding rule.
+Use the **ztc_forwarding_gateway** resource allows the creation and management of ZIA and Log Forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTC traffic forwarding rule.
 
 ## Example Usage - ZIA Primary and Secondary Type AUTO
 
 ```hcl
-resource "ztc_zia_forwarding_gateway" "ztc_gw01" {
+resource "ztc_forwarding_gateway" "ztc_gw01" {
   name           = "ZTC_GW01"
   description    = "Example Forwarding Gateway 1"
   fail_closed    = true
@@ -33,7 +33,7 @@ resource "ztc_zia_forwarding_gateway" "ztc_gw01" {
 ## Example Usage - ZIA Primary and Secondary Type DC
 
 ```hcl
-resource "ztc_zia_forwarding_gateway" "ztc_gw02" {
+resource "ztc_forwarding_gateway" "ztc_gw02" {
   name             = "ZTC_GW02"
   description      = "Example Forwarding Gateway 2"
   fail_closed      = true
@@ -48,7 +48,7 @@ resource "ztc_zia_forwarding_gateway" "ztc_gw02" {
 ## Example Usage - ZIA Primary and Secondary Type MANUAL_OVERRIDE
 
 ```hcl
-resource "ztc_zia_forwarding_gateway" "ztc_gw03" {
+resource "ztc_forwarding_gateway" "ztc_gw03" {
   name             = "ZTC_GW03"
   description      = "Example Forwarding Gateway 3"
   fail_closed      = true
@@ -63,7 +63,7 @@ resource "ztc_zia_forwarding_gateway" "ztc_gw03" {
 ## Example Usage - Log Forwarding Gateway Primary and Secondary Type AUTO
 
 ```hcl
-resource "ztc_zia_forwarding_gateway" "ztc_log01" {
+resource "ztc_forwarding_gateway" "ztc_log01" {
   name           = "LOG_FW_GW01"
   description    = "Example Log Forwarding Gateway 1"
   fail_closed    = true
@@ -76,7 +76,7 @@ resource "ztc_zia_forwarding_gateway" "ztc_log01" {
 ## Example Usage - Log Forwarding Gateway Primary and Secondary Type DC
 
 ```hcl
-resource "ztc_zia_forwarding_gateway" "ztc_log02" {
+resource "ztc_forwarding_gateway" "ztc_log02" {
   name           = "LOG_FW_GW02"
   description    = "Example Log Forwarding Gateway 2"
   fail_closed      = true
@@ -91,7 +91,7 @@ resource "ztc_zia_forwarding_gateway" "ztc_log02" {
 ## Example Usage - Log Forwarding Gateway Primary and Secondary Type MANUAL_OVERRIDE
 
 ```hcl
-resource "ztc_zia_forwarding_gateway" "ztc_log03" {
+resource "ztc_forwarding_gateway" "ztc_log03" {
   name           = "LOG_FW_GW03"
   description    = "Example Log Forwarding Gateway 3"
   fail_closed      = true
@@ -140,16 +140,16 @@ In addition to all arguments above, the following attributes are exported:
 Zscaler offers a dedicated tool called Zscaler-Terraformer to allow the automated import of ZTC configurations into Terraform-compliant HashiCorp Configuration Language.
 [Visit](https://github.com/zscaler/zscaler-terraformer)
 
-**ztc_zia_forwarding_gateway** can be imported by using `<GATEWAY_ID>` or `<GATEWAY_NAME>` as the import ID.
+**ztc_forwarding_gateway** can be imported by using `<GATEWAY_ID>` or `<GATEWAY_NAME>` as the import ID.
 
 For example:
 
 ```shell
-terraform import ztc_zia_forwarding_gateway.example <rule_id>
+terraform import ztc_forwarding_gateway.example <rule_id>
 ```
 
 or
 
 ```shell
-terraform import ztc_zia_forwarding_gateway.example <rule_name>
+terraform import ztc_forwarding_gateway.example <rule_name>
 ```

@@ -8,7 +8,7 @@ const (
 	NetworkServices       = "ztc_network_services"
 	NetworkServiceGroups  = "ztc_network_service_groups"
 	TrafficForwardingRule = "ztc_traffic_forwarding_rule"
-	ZIAForwardingGateway  = "ztc_zia_forwarding_gateway"
+	ZTCForwardingGateway  = "ztc_forwarding_gateway"
 	DNSForwardingGateway  = "ztc_dns_forwarding_gateway"
 	LocationTemplate      = "ztc_location_template"
 	ProvisioningURL       = "ztc_provisioning_url"

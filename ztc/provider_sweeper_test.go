@@ -321,7 +321,7 @@ func sweepTestZIAForwardingGateway(client *testClient) error {
 				errorList = append(errorList, err)
 				continue
 			}
-			logSweptResource(resourcetype.ZIAForwardingGateway, fmt.Sprintf("%d", b.ID), b.Name)
+			logSweptResource(resourcetype.ZTCForwardingGateway, fmt.Sprintf("%d", b.ID), b.Name)
 		}
 	}
 	// Log errors encountered during the deletion process

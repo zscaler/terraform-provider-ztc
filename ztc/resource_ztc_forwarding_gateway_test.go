@@ -18,7 +18,7 @@ import (
 
 func TestAccResourceForwardingGateway_Basic(t *testing.T) {
 	var gateway zia_forwarding_gateway.ECGateway
-	resourceTypeAndName, _, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.ZIAForwardingGateway)
+	resourceTypeAndName, _, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.ZTCForwardingGateway)
 
 	initialName := "tf-acc-test-" + generatedName
 	updatedName := "tf-updated-" + generatedName
@@ -69,7 +69,7 @@ func testAccCheckForwardingGatewayDestroy(s *terraform.State) error {
 	service := apiClient.Service
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != resourcetype.ZIAForwardingGateway {
+		if rs.Type != resourcetype.ZTCForwardingGateway {
 			continue
 		}
 
@@ -140,7 +140,7 @@ resource "%s" "%s" {
   }
 `,
 		// Resource type and name for the zia forwarding gateway
-		resourcetype.ZIAForwardingGateway,
+		resourcetype.ZTCForwardingGateway,
 		resourceName,
 		generatedName,
 		description,
@@ -150,11 +150,11 @@ resource "%s" "%s" {
 		gatewayType,
 
 		// Data source type and name
-		resourcetype.ZIAForwardingGateway,
+		resourcetype.ZTCForwardingGateway,
 		resourceName,
 
 		// Reference to the resource
-		resourcetype.ZIAForwardingGateway,
+		resourcetype.ZTCForwardingGateway,
 		resourceName,
 	)
 }

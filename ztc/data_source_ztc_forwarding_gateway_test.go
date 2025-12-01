@@ -11,7 +11,7 @@ import (
 )
 
 func TestAccDataSourceForwardingGateway_Basic(t *testing.T) {
-	resourceTypeAndName, dataSourceTypeAndName, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.ZIAForwardingGateway)
+	resourceTypeAndName, dataSourceTypeAndName, generatedName := method.GenerateRandomSourcesTypeAndName(resourcetype.ZTCForwardingGateway)
 
 	resource.Test(t, resource.TestCase{
 		PreCheck:     func() { testAccPreCheck(t) },

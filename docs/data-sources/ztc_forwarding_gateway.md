@@ -1,26 +1,26 @@
 ---
 subcategory: "Forwarding Gateways"
 layout: "zscaler"
-page_title: "ZTC: zia_forwarding_gateway"
+page_title: "ZTC: forwarding_gateway"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-forwarding-gateways
   API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-gateways
   Get information about Forwarding Gateways.
 ---
 
-# ztc_zia_forwarding_gateway (Data Source)
+# ztc_forwarding_gateway (Data Source)
 
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways#/gateways-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-forwarding-gateways)
 * [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways)
 
-Use the **ztc_zia_forwarding_gateway** data source to get information about forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with ZTC traffic forwarding rule.
+Use the **ztc_forwarding_gateway** data source to get information about forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with ZTC traffic forwarding rule.
 
 ## Example Usage - Retrieve by Name
 
 ```hcl
-data "ztc_zia_forwarding_gateway" "example" {
+data "ztc_forwarding_gateway" "example" {
     name = "example_forwarding_gateway"
 }
 ```
@@ -28,7 +28,7 @@ data "ztc_zia_forwarding_gateway" "example" {
 ## Example Usage - Retrieve by ID
 
 ```hcl
-data "ztc_zia_forwarding_gateway" "example" {
+data "ztc_forwarding_gateway" "example" {
     id = 5458452
 }
 ```

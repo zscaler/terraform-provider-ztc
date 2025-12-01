@@ -66,7 +66,7 @@ func testAccCheckDNSForwardingGatewayDestroy(s *terraform.State) error {
 	service := apiClient.Service
 
 	for _, rs := range s.RootModule().Resources {
-		if rs.Type != resourcetype.ZIAForwardingGateway {
+		if rs.Type != resourcetype.ZTCForwardingGateway {
 			continue
 		}
 
