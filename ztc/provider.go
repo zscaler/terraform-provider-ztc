@@ -142,6 +142,7 @@ func ZTCProvider() *schema.Provider {
 			"ztc_account_groups":              dataSourceAccountGroup(),
 			"ztc_public_cloud_info":           dataSourcePublicCloudInfo(),
 			"ztc_supported_regions":           dataSourceSupportedRegions(),
+			"ztc_workload_groups":             dataSourceWorkloadGroup(),
 		},
 	}
 

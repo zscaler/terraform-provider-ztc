@@ -27,9 +27,6 @@ data "ztc_network_services_groups" "this" {
   name = "Corporate Custom SSH TCP_10022"
 }
 
-# NOTE: To retrieve the src_workload_groups ID information, you must leverage the ZIA Terraform Provider at the moment,
-# which returns the exact same information ID since the resource is cross-shared between ZIA and ZTC.
-
 data "zia_workload_groups" "this" {
   name = "WORKLOAD_GROUP01"
 }

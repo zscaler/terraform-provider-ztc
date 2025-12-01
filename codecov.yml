@@ -1,0 +1,49 @@
+ignore:
+  - "vendor/**/*"
+  - "dist/**/*"
+
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+        threshold: 1%
+    patch:
+      default:
+        target: auto
+    changes: false
+
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  require_changes: false
+  require_base: false
+  require_head: true
+  branches:
+    - master
+
+flags:
+  ztc:
+    paths:
+      - ztc/**/*.go
+    carryforward: true
+
+flag_management:
+  default_rules:
+    carryforward: true
+    statuses:
+      - type: project
+        target: auto
+        threshold: 1%
+      - type: patch
+        target: 75%
+  individual_flags:
+    - name: ztc
+      paths:
+        - ztc/**/*.go
+      carryforward: true
+      statuses:
+        - type: project
+          target: 75%
+        - type: patch
+          target: 100%

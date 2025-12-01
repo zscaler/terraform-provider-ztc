@@ -1,9 +1,9 @@
 [![Release](https://github.com/zscaler/terraform-provider-ztc/actions/workflows/release.yml/badge.svg?branch=master)](https://github.com/zscaler/terraform-provider-ztc/actions/workflows/release.yml)
 [![GitHub go.mod Go version](https://img.shields.io/github/go-mod/go-version/zscaler/terraform-provider-ztc)](https://github.com/zscaler/terraform-provider-ztc/blob/master/.go-version)
 [![Go Report Card](https://goreportcard.com/badge/github.com/zscaler/terraform-provider-ztc)](https://goreportcard.com/report/github.com/zscaler/terraform-provider-ztc)
+[![codecov](https://codecov.io/gh/zscaler/terraform-provider-ztc/graph/badge.svg?token=A9J4AJS7F5)](https://codecov.io/gh/zscaler/terraform-provider-ztc)
 [![License](https://img.shields.io/github/license/zscaler/terraform-provider-ztc?color=blue)](https://github.com/zscaler/terraform-provider-ztc/blob/master/LICENSE)
 [![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
-[![Slack](https://img.shields.io/badge/Join%20Our%20Community-Slack-blue)](https://forms.gle/3iMJvVmJDvmUy36q9)
 
 <a href="https://terraform.io">
     <img src="https://raw.githubusercontent.com/hashicorp/terraform-website/master/public/img/logo-text.svg" alt="Terraform logo" title="Terraform" height="50" />
@@ -13,14 +13,23 @@
     <img src="https://raw.githubusercontent.com/zscaler/zscaler-terraformer/master/images/zscaler_terraformer-logo.svg" alt="Zscaler logo" title="Zscaler" height="50" />
 </a>
 
-Terraform Provider for ☁️Zero Trust Cloud (ZTC)☁️
-=========================================================================
+## Support Disclaimer
 
-⚠️  **Attention:** This provider is not affiliated with, nor supported by Zscaler in any way.
+-> **Disclaimer:** Please refer to our [General Support Statement](docs/guides/support.md) before proceeding with the use of this provider. You can also refer to our [troubleshooting guide](docs/guides/troubleshooting.md) for guidance on typical problems.
 
-- Website: <https://www.terraform.io>
-- Documentation: <https://help.zscaler.com/cloud-connector>
-- API Documentation: <https://help.zscaler.com/cloud-branch-connector/getting-started-api>
+## Terraform Provider for ☁️Zero Trust Cloud (ZTC)☁️
+
+The ZTC provider is a Terraform plugin that allows for the full lifecycle management of Zscaler Zero Trust Cloud resources.
+
+- Website: [https://www.terraform.io](https://registry.terraform.io/providers/zscaler/ztc/latest)
+- Documentation: <https://help.zscaler.com/cloud-branch-connector>
+- Zscaler Community: [Zscaler Community](https://community.zscaler.com/)
+
+## Examples
+
+All the resources and data sources have [one or more examples](./examples) to give you an idea of how to use this
+provider to build your own Zscaler Internet Access configuration. Provider's official documentation is located in the
+[official terraform registry](https://registry.terraform.io/providers/zscaler/ztc/latest/docs).
 
 Requirements
 ------------
@@ -29,162 +38,97 @@ Requirements
 - Install [Go](https://golang.org/doc/install) 1.16+ (This will be used to build the provider plugin.)
 - Create a directory, go, follow this [doc](https://github.com/golang/go/wiki/SettingGOPATH) to edit ~/.bash_profile to setup the GOPATH environment variable)
 
-Building The Provider (Terraform v0.12+)
----------------------
+## Quick Start
 
-Clone repository to: `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztc`
+If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (please
+check the [requirements](#requirements) before proceeding).
 
-```sh
-mkdir -p $GOPATH/src/github.com/terraform-providers
-cd $GOPATH/src/github.com/terraform-providers
-git clone https://github.com/terraform-providers/terraform-provider-ztc.git
-```
+_Note:_ This project uses [Go Modules](https://blog.golang.org/using-go-modules) making it safe to work with it outside
+your existing [GOPATH](http://golang.org/doc/code.html#GOPATH). The instructions that follow assume a directory in your
+home directory outside the standard GOPATH (i.e `$HOME/development/terraform-providers/`).
 
-To clone on windows
+Clone repository to: `$HOME/development/terraform-providers/`
 
 ```sh
-mkdir %GOPATH%\src\github.com\terraform-providers
-cd %GOPATH%\src\github.com\terraform-providers
-git clone https://github.com/terraform-providers/terraform-provider-ztc.git
+$ mkdir -p $HOME/development/terraform-providers/; cd $HOME/development/terraform-providers/
+$ git clone git@github.com:zscaler/terraform-provider-ztc.git
+...
 ```
 
-Enter the provider directory and build the provider
+Enter the provider directory and run `make tools`. This will install the needed tools for the provider.
 
 ```sh
-cd $GOPATH/src/github.com/terraform-providers/terraform-provider-ztc
-make fmt
-make build
+$ make tools
 ```
 
-To build on Windows
+To compile the provider, run `make build13`. This will build the provider and put the provider binary in the `$GOPATH/bin`
+directory.
 
 ```sh
-cd %GOPATH%\src\github.com\terraform-providers\terraform-provider-ztc
-go fmt
-go install
-```
-
-Building The Provider (Terraform v0.13+)
------------------------
-
-### MacOS / Linux
-
-Run the following command:
-
-```sh
-make build13
-```
-
-### Windows
-
-Run the following commands for cmd:
-
-```sh
-cd %GOPATH%\src\github.com\terraform-providers\terraform-provider-ztc
-go fmt
-go install
-xcopy "%GOPATH%\bin\terraform-provider-ztc.exe" "%APPDATA%\terraform.d\plugins\zscaler.com\ztc\ztc\1.0.0\windows_amd64\" /Y
-```
-
-Run the following commands if using powershell:
-
-```sh
-cd "$env:GOPATH\src\github.com\terraform-providers\terraform-provider-ztc"
-go fmt
-go install
-xcopy "$env:GOPATH\bin\terraform-provider-ztc.exe" "$env:APPDATA\terraform.d\plugins\zscaler.com\ztc\ztc\1.0.0\windows_amd64\" /Y
-```
-
-**Note**: For contributions created from forks, the repository should still be cloned under the `$GOPATH/src/github.com/terraform-providers/terraform-provider-ztc` directory to allow the provided `make` commands to properly run, build, and test this project.
-
-Using Zero Trust Cloud (Terraform v0.12+)
-----------------------------------------------------------
-
-Activate the provider by adding the following to `~/.terraformrc` on Linux/Unix.
-
-```sh
-providers {
-  "ztc" = "$GOPATH/bin/terraform-provider-ztc"
-}
-```
-
-For Windows, the file should be at '%APPDATA%\terraform.rc'. Do not change $GOPATH to %GOPATH%.
-
-In Windows, for terraform 0.11.8 and lower use the above text.
-
-In Windows, for terraform 0.11.9 and higher use the following at '%APPDATA%\terraform.rc'
-
-```sh
-providers {
-  "ztc" = "$GOPATH/bin/terraform-provider-ztc.exe"
-}
-```
-
-If the rc file is not present, it should be created
-
-Using Zero Trust Cloud (Terraform v0.13+)
------------------------------------------------------------
-
-For Terraform v0.13+, to use a locally built version of a provider you must add the following snippet to every module
-that you want to use the provider in.
-
-```hcl
-terraform {
-  required_providers {
-    ztc = {
-      source  = "zscaler.com/ztc/ztc"
-      version = "0.1.0"
-    }
-  }
-}
-```
-
-Examples
---------
-
-Visit [here](<https://github.com/>
-
-/terraform-provider-ztc/tree/master/website/docs/) for the complete documentation for all resources on github.
-
-Issues
-======
-
-Please feel free to open an issue using [Github Issues](https://github.com/zscaler/terraform-provider-ztc/issues) if you run into any problems using this ztc Terraform provider.
-
-Developing the Provider
----------------------------
-
-If you wish to work on the provider, you'll first need [Go](http://www.golang.org) installed on your machine (version 1.16+ is *required*). You'll also need to correctly setup a [GOPATH](http://golang.org/doc/code.html#GOPATH), as well as adding `$GOPATH/bin` to your `$PATH`.
-
-To compile the provider, run `make build`. This will build the provider and put the provider binary in the `$GOPATH/bin` directory.
-
-```sh
-$ make build
+$ make build13
 ...
 $ $GOPATH/bin/terraform-provider-ztc
 ...
 ```
 
-In order to test the provider, you can simply run `make test`.
+## Testing the Provider
+
+In order to test the provider, you can run `make test`.
 
 ```sh
-make test
+$ make test
 ```
 
 In order to run the full suite of Acceptance tests, run `make testacc`.
 
-*Note:* Acceptance tests create real resources, and often cost money to run.
+_Note:_ Acceptance tests create real resources.
 
 ```sh
-make testacc
+$ make testacc
 ```
+
+## Using the Provider
+
+To use a released provider in your Terraform environment,
+run [`terraform init`](https://www.terraform.io/docs/commands/init.html) and Terraform will automatically install the
+provider. To specify a particular provider version when installing released providers, see
+the [Terraform documentation on provider versioning](https://www.terraform.io/docs/configuration/providers.html#version-provider-versions)
+.
+
+To instead use a custom-built provider in your Terraform environment (e.g. the provider binary from the build
+instructions above), follow the instructions
+to [install it as a plugin](https://www.terraform.io/docs/plugins/basics.html#installing-plugins). After placing the
+custom-built provider into your plugins' directory, run `terraform init` to initialize it.
+
+For either installation method, documentation about the provider specific configuration options can be found on
+the [provider's website](https://registry.terraform.io/providers/zscaler/ztc/latest/docs).
+
+## Contributing
+
+Terraform is the work of thousands of contributors. We really appreciate your help!
+
+We have these minimum requirements for source code contributions.
+
+Bug fix pull requests must include:
+
+- [Terraform Plugin Acceptance Tests](https://developer.hashicorp.com/terraform/plugin/sdkv2/testing/acceptance-tests).
+
+Pull requests with new resources and data sources must include:
+
+- Make API calls with the [zscaler-sdk-go v3](https://github.com/zscaler/zscaler-sdk-go) client
+- Include [Terraform Plugin Acceptance Tests](https://developer.hashicorp.com/terraform/plugin/sdkv2/testing/acceptance-tests)
+
+Issues on GitHub are intended to be related to the bugs or feature requests with provider codebase.
+See [Plugin SDK Community](https://www.terraform.io/community)
+and [Discuss forum](https://discuss.hashicorp.com/c/terraform-providers/31/none) for a list of community resources to
+ask questions about Terraform.
 
 License
 =========
 
-MIT License
+=======
 
-Copyright (c) 2021 [Zscaler BD Solutions Architect team](https://github.com/zscaler)
+Copyright (c) 2022 [Zscaler](https://github.com/zscaler)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
