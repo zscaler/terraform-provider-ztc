@@ -201,20 +201,20 @@ func IdSchema() *schema.Schema {
 	return &schema.Schema{
 		Type:     schema.TypeSet,
 		Optional: true,
-		Computed: true,
-		ForceNew: true,
+		// Computed: true,
+		// ForceNew: true,
 		MaxItems: 1,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"id": {
 					Type:     schema.TypeInt,
 					Optional: true,
-					Computed: true,
+					// Computed: true,
 				},
 				"name": {
 					Type:     schema.TypeString,
 					Optional: true,
-					Computed: true,
+					// Computed: true,
 				},
 			},
 		},

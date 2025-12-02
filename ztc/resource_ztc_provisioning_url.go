@@ -26,15 +26,15 @@ func resourceProvisioningURL() *schema.Resource {
 				service := zClient.Service
 
 				id := d.Id()
-				_, parseIDErr := strconv.ParseInt(id, 10, 64)
+				idInt, parseIDErr := strconv.ParseInt(id, 10, 64)
 				if parseIDErr == nil {
 					// assume if the passed value is an int
-					d.Set("provurl_id", id)
+					_ = d.Set("provurl_id", int(idInt))
 				} else {
 					resp, err := provisioning_url.GetByName(ctx, service, id)
 					if err == nil {
 						d.SetId(strconv.Itoa(resp.ID))
-						d.Set("provurl_id", resp.ID)
+						_ = d.Set("provurl_id", resp.ID)
 					} else {
 						return []*schema.ResourceData{d}, err
 					}
@@ -54,7 +54,7 @@ func resourceProvisioningURL() *schema.Resource {
 			},
 			"name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Required: true,
 			},
 			"desc": {
 				Type:     schema.TypeString,
@@ -66,7 +66,6 @@ func resourceProvisioningURL() *schema.Resource {
 			},
 			"prov_url_type": {
 				Type:     schema.TypeString,
-				Computed: true,
 				Optional: true,
 				ValidateFunc: validation.StringInSlice([]string{
 					"ONPREM",
@@ -77,13 +76,25 @@ func resourceProvisioningURL() *schema.Resource {
 				}, false),
 			},
 			"prov_url_data": {
-				Type:     schema.TypeSet,
-				Computed: true,
+				Type:     schema.TypeList,
 				Optional: true,
+				Computed: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"location_template": IdSchema(),
+						"location_template": {
+							Type:     schema.TypeList,
+							Required: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeInt,
+										Required: true,
+									},
+								},
+							},
+						},
 						"form_factor": {
 							Type:     schema.TypeString,
 							Optional: true,
@@ -103,6 +114,36 @@ func resourceProvisioningURL() *schema.Resource {
 								"AZURE",
 								"GCP",
 							}, false),
+						},
+						"release_channel": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+							ValidateFunc: validation.StringInSlice([]string{
+								"LATEST",
+								"STABLE",
+								"BETA",
+							}, false),
+						},
+						"auto_scale_details": {
+							Type:     schema.TypeList,
+							Optional: true,
+							Computed: true,
+							MaxItems: 1,
+							Elem: &schema.Resource{
+								Schema: map[string]*schema.Schema{
+									"auto_scale": {
+										Type:     schema.TypeBool,
+										Optional: true,
+										Computed: true,
+									},
+								},
+							},
+						},
+						"cell_edge_deploy": {
+							Type:     schema.TypeBool,
+							Optional: true,
+							Computed: true,
 						},
 					},
 				},
@@ -151,6 +192,7 @@ func resourceProvisioningURLRead(ctx context.Context, d *schema.ResourceData, me
 	log.Printf("[INFO] Getting provisioning url:\n%+v\n", resp)
 
 	d.SetId(fmt.Sprintf("%d", resp.ID))
+	_ = d.Set("provurl_id", resp.ID)
 	_ = d.Set("name", resp.Name)
 	_ = d.Set("desc", resp.Desc)
 	_ = d.Set("prov_url", resp.ProvUrl)
@@ -222,47 +264,32 @@ func expandProvisioningURLDetails(d *schema.ResourceData) provisioning_url.Provi
 }
 
 func expandLocationProvURLData(d *schema.ResourceData) *provisioning_url.ProvUrlData {
-	provUrlDataObj, ok := d.GetOk("prov_url_data")
-	if !ok {
-		return nil
-	}
-	provUrls, ok := provUrlDataObj.(*schema.Set)
-	if !ok {
-		return nil
-	}
-	if len(provUrls.List()) == 0 {
-		return nil
-	}
-
-	provUrlDataMap, ok := provUrls.List()[0].(map[string]interface{})
+	provUrlDataList, ok := d.GetOk("prov_url_data")
 	if !ok {
 		return nil
 	}
 
-	locTemplateObj, ok := provUrlDataMap["location_template"]
+	provUrlDataItems := provUrlDataList.([]interface{})
+	if len(provUrlDataItems) == 0 {
+		return nil
+	}
+
+	provUrlDataMap, ok := provUrlDataItems[0].(map[string]interface{})
 	if !ok {
 		return nil
 	}
 
-	locTemplateSet, ok := locTemplateObj.(*schema.Set)
-	if !ok || locTemplateSet.Len() == 0 {
-		return nil
-	}
+	result := &provisioning_url.ProvUrlData{}
 
-	locTemplateMap, ok := locTemplateSet.List()[0].(map[string]interface{})
-	if !ok {
-		return nil
-	}
-
-	templateID, ok := locTemplateMap["id"].(int)
-	if !ok {
-		return nil
-	}
-
-	result := &provisioning_url.ProvUrlData{
-		LocationTemplate: locationtemplate.LocationTemplate{
-			ID: templateID,
-		},
+	// Expand location_template
+	if locTemplateList, ok := provUrlDataMap["location_template"].([]interface{}); ok && len(locTemplateList) > 0 {
+		if locTemplateMap, ok := locTemplateList[0].(map[string]interface{}); ok {
+			if templateID, ok := locTemplateMap["id"].(int); ok {
+				result.LocationTemplate = locationtemplate.LocationTemplate{
+					ID: templateID,
+				}
+			}
+		}
 	}
 
 	if formFactor, ok := provUrlDataMap["form_factor"].(string); ok && formFactor != "" {
@@ -271,6 +298,24 @@ func expandLocationProvURLData(d *schema.ResourceData) *provisioning_url.ProvUrl
 
 	if cloudProviderType, ok := provUrlDataMap["cloud_provider_type"].(string); ok && cloudProviderType != "" {
 		result.CloudProviderType = cloudProviderType
+	}
+
+	if releaseChannel, ok := provUrlDataMap["release_channel"].(string); ok && releaseChannel != "" {
+		result.ReleaseChannel = releaseChannel
+	}
+
+	// Expand auto_scale_details
+	if autoScaleDetailsList, ok := provUrlDataMap["auto_scale_details"].([]interface{}); ok && len(autoScaleDetailsList) > 0 {
+		if autoScaleDetailsMap, ok := autoScaleDetailsList[0].(map[string]interface{}); ok {
+			result.AutoScaleDetails = provisioning_url.AutoScaleDetails{
+				AutoScale: autoScaleDetailsMap["auto_scale"].(bool),
+			}
+		}
+	}
+
+	// Expand cell_edge_deploy
+	if cellEdgeDeploy, ok := provUrlDataMap["cell_edge_deploy"].(bool); ok {
+		result.CellEdgeDeploy = cellEdgeDeploy
 	}
 
 	return result
@@ -285,6 +330,9 @@ func flattenProvURLDataSimple(provUrlData *provisioning_url.ProvUrlData) []map[s
 			"location_template":   flattenLocationTemplateSimple(&provUrlData.LocationTemplate),
 			"form_factor":         provUrlData.FormFactor,
 			"cloud_provider_type": provUrlData.CloudProviderType,
+			"release_channel":     provUrlData.ReleaseChannel,
+			"auto_scale_details":  flattenAutoScaleDetailsSimple(&provUrlData.AutoScaleDetails),
+			"cell_edge_deploy":    provUrlData.CellEdgeDeploy,
 		},
 	}
 }
@@ -296,6 +344,17 @@ func flattenLocationTemplateSimple(locTemplate *locationtemplate.LocationTemplat
 	return []map[string]interface{}{
 		{
 			"id": locTemplate.ID,
+		},
+	}
+}
+
+func flattenAutoScaleDetailsSimple(autoScaleDetails *provisioning_url.AutoScaleDetails) []map[string]interface{} {
+	if autoScaleDetails == nil {
+		return nil
+	}
+	return []map[string]interface{}{
+		{
+			"auto_scale": autoScaleDetails.AutoScale,
 		},
 	}
 }

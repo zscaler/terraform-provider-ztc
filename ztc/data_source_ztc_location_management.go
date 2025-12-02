@@ -200,6 +200,9 @@ func dataSourceLocationManagementRead(ctx context.Context, d *schema.ResourceDat
 }
 
 func flattenIDNameExternalID(item *common.CommonIDName) []interface{} {
+	if item == nil {
+		return nil
+	}
 	r := map[string]interface{}{
 		"id":   item.ID,
 		"name": item.Name,

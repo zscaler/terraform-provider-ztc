@@ -70,10 +70,98 @@ func dataSourceProvisioningURL() *schema.Resource {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Elem: &schema.Resource{
-								Schema: dataSourceLocationTemplate().Schema,
+								Schema: map[string]*schema.Schema{
+									"id": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"name": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"desc": {
+										Type:     schema.TypeString,
+										Computed: true,
+									},
+									"editable": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+									"last_mod_time": {
+										Type:     schema.TypeInt,
+										Computed: true,
+									},
+									"template": {
+										Type:     schema.TypeSet,
+										Computed: true,
+										Elem: &schema.Resource{
+											Schema: map[string]*schema.Schema{
+												"template_prefix": {
+													Type:     schema.TypeString,
+													Computed: true,
+												},
+												"xff_forward_enabled": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"auth_required": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"caution_enabled": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"aup_enabled": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"aup_timeout_in_days": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"ofw_enabled": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"ips_control": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"enforce_bandwidth_control": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"up_bandwidth": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"dn_bandwidth": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"idle_time_in_minutes": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"surrogate_ip_enforced_for_known_browsers": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+												"surrogate_refresh_time_in_minutes": {
+													Type:     schema.TypeInt,
+													Computed: true,
+												},
+												"surrogate_ip": {
+													Type:     schema.TypeBool,
+													Computed: true,
+												},
+											},
+										},
+									},
+								},
 							},
 						},
-						"cloud_provider": UIDNameSchema(),
 						"cloud_provider_type": {
 							Type:     schema.TypeString,
 							Computed: true,
@@ -82,22 +170,29 @@ func dataSourceProvisioningURL() *schema.Resource {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"hypervisors": {
-							Type:     schema.TypeString,
-							Computed: true,
-						},
-						"location": UIDNameSchema(),
-						"bc_group": {
+						"auto_scale_details": {
 							Type:     schema.TypeSet,
 							Computed: true,
 							Elem: &schema.Resource{
-								Schema: ecGroupSchemaData(),
+								Schema: map[string]*schema.Schema{
+									"auto_scale": {
+										Type:     schema.TypeBool,
+										Computed: true,
+									},
+								},
 							},
+						},
+						"cell_edge_deploy": {
+							Type:     schema.TypeBool,
+							Computed: true,
+						},
+						"release_channel": {
+							Type:     schema.TypeString,
+							Computed: true,
 						},
 					},
 				},
 			},
-			"used_in_ec_groups": UIDNameSchema(),
 			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
@@ -148,9 +243,6 @@ func dataSourceProvisioningURLRead(ctx context.Context, d *schema.ResourceData, 
 		if err := d.Set("prov_url_data", flattenProvURLData(&resp.ProvUrlData)); err != nil {
 			return diag.FromErr(err)
 		}
-		if err := d.Set("used_in_ec_groups", flattenIDExtensionsListIDs(resp.UsedInEcGroups)); err != nil {
-			return diag.FromErr(err)
-		}
 
 		if err := d.Set("last_mod_uid", flattenIDExtensionsList(resp.LastModUid)); err != nil {
 			return diag.FromErr(err)
@@ -177,11 +269,10 @@ func flattenProvURLData(provUrlData *provisioning_url.ProvUrlData) []map[string]
 			"pac_server":          provUrlData.PacServer,
 			"cloud_provider_type": provUrlData.CloudProviderType,
 			"form_factor":         provUrlData.FormFactor,
-			"hypervisors":         provUrlData.HyperVisors,
+			"cell_edge_deploy":    provUrlData.CellEdgeDeploy,
+			"release_channel":     provUrlData.ReleaseChannel,
 			"location_template":   flattenLocationTemplateFromProvURL(&provUrlData.LocationTemplate),
-			"cloud_provider":      flattenCommonIDNameExternalID(provUrlData.CloudProvider),
-			"location":            flattenCommonIDNameExternalID(provUrlData.Location),
-			"bc_group":            flattenBcGroupFromProvURL(provUrlData.BcGroup),
+			"auto_scale_details":  flattenAutoScaleDetails(&provUrlData.AutoScaleDetails),
 		},
 	}
 }
@@ -197,13 +288,15 @@ func flattenLocationTemplateFromProvURL(locTemplate *locationtemplate.LocationTe
 			"desc":          locTemplate.Description,
 			"editable":      locTemplate.Editable,
 			"last_mod_time": locTemplate.LastModTime,
-			"template":      flattenTemplateDetailsFromProvURL(*locTemplate.LocationTemplateDetails),
-			"last_mod_uid":  flattenCommonIDNameExternalID(locTemplate.LastModUid),
+			"template":      flattenTemplateDetailsFromProvURL(locTemplate.LocationTemplateDetails),
 		},
 	}
 }
 
-func flattenTemplateDetailsFromProvURL(template locationtemplate.LocationTemplateDetails) []map[string]interface{} {
+func flattenTemplateDetailsFromProvURL(template *locationtemplate.LocationTemplateDetails) []map[string]interface{} {
+	if template == nil {
+		return nil
+	}
 	return []map[string]interface{}{
 		{
 			"template_prefix":           template.TemplatePrefix,
@@ -217,110 +310,21 @@ func flattenTemplateDetailsFromProvURL(template locationtemplate.LocationTemplat
 			"enforce_bandwidth_control": template.EnforceBandwidthControl,
 			"up_bandwidth":              template.UpBandwidth,
 			"dn_bandwidth":              template.DnBandwidth,
+			"idle_time_in_minutes":      template.IdleTimeInMinutes,
+			"surrogate_ip_enforced_for_known_browsers": template.SurrogateIPEnforcedForKnownBrowsers,
+			"surrogate_refresh_time_in_minutes":        template.SurrogateRefreshTimeInMinutes,
+			"surrogate_ip":                             template.SurrogateIP,
 		},
 	}
 }
 
-func flattenBcGroupFromProvURL(bcGroup provisioning_url.BcGroup) []map[string]interface{} {
-	// Convert Status from []string to string
-	var statusStr string
-	if len(bcGroup.Status) > 0 {
-		statusStr = bcGroup.Status[0]
-	}
-
-	return []map[string]interface{}{
-		{
-			"id":                      bcGroup.ID,
-			"name":                    bcGroup.Name,
-			"desc":                    bcGroup.Desc,
-			"deploy_type":             bcGroup.DeployType,
-			"status":                  statusStr,
-			"platform":                bcGroup.Platform,
-			"aws_availability_zone":   bcGroup.AwsAvailabilityZone,
-			"azure_availability_zone": bcGroup.AzureAvailabilityZone,
-			"location":                flattenCommonIDNameExternalID(bcGroup.Location),
-			"max_ec_count":            bcGroup.MaxEcCount,
-			"prov_template":           flattenCommonIDNameExternalID(bcGroup.ProvTemplate),
-			"tunnel_mode":             bcGroup.TunnelMode,
-			"ec_vms":                  flattenEcVMsFromProvURL(bcGroup.EcVMs),
-		},
-	}
-}
-
-func flattenEcVMsFromProvURL(ecVMs []provisioning_url.EcVM) []map[string]interface{} {
-	if len(ecVMs) == 0 {
+func flattenAutoScaleDetails(autoScaleDetails *provisioning_url.AutoScaleDetails) []map[string]interface{} {
+	if autoScaleDetails == nil {
 		return nil
 	}
-	result := []map[string]interface{}{}
-	for _, ecVM := range ecVMs {
-		result = append(result, map[string]interface{}{
-			"id":                 ecVM.ID,
-			"name":               ecVM.Name,
-			"form_factor":        ecVM.FormFactor,
-			"management_nw":      flattenManagementNwFromProvURL(ecVM.ManagementNw),
-			"ec_instances":       flattenEcInstancesFromProvURL(ecVM.EcInstances),
-			"city_geo_id":        ecVM.CityGeoId,
-			"nat_ip":             ecVM.NatIp,
-			"zia_gateway":        ecVM.ZiaGateway,
-			"zpa_broker":         ecVM.ZpaBroker,
-			"build_version":      ecVM.BuildVersion,
-			"last_upgrade_time":  ecVM.LastUpgradeTime,
-			"upgrade_status":     ecVM.UpgradeStatus,
-			"upgrade_start_time": ecVM.UpgradeStartTime,
-			"upgrade_end_time":   ecVM.UpgradeEndTime,
-		})
-	}
-	return result
-}
-
-func flattenManagementNwFromProvURL(mgmtNw provisioning_url.ManagementNw) []map[string]interface{} {
 	return []map[string]interface{}{
 		{
-			"id":              mgmtNw.ID,
-			"ip_start":        mgmtNw.IpStart,
-			"ip_end":          mgmtNw.IpEnd,
-			"netmask":         mgmtNw.Netmask,
-			"default_gateway": mgmtNw.DefaultGateway,
-			"nw_type":         mgmtNw.NwType,
-			"dns":             flattenDNSFromProvURL(mgmtNw.DNS),
-		},
-	}
-}
-
-func flattenDNSFromProvURL(dns provisioning_url.DNS) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"id":       dns.ID,
-			"ips":      dns.Ips,
-			"dns_type": dns.DNSType,
-		},
-	}
-}
-
-func flattenEcInstancesFromProvURL(instances []provisioning_url.EcInstance) []map[string]interface{} {
-	if len(instances) == 0 {
-		return nil
-	}
-	result := []map[string]interface{}{}
-	for _, instance := range instances {
-		result = append(result, map[string]interface{}{
-			"id":            instance.ID,
-			"instance_type": instance.InstanceType,
-			"service_ips":   flattenServiceIpsFromProvURL(instance.ServiceIps),
-			"lb_ip_addr":    flattenServiceIpsFromProvURL(instance.LbIpAddr),
-			"out_gw_ip":     instance.OutGwIp,
-			"nat_ip":        instance.NatIp,
-			"dns_ip":        instance.DnsIp,
-		})
-	}
-	return result
-}
-
-func flattenServiceIpsFromProvURL(serviceIps provisioning_url.ServiceIps) []map[string]interface{} {
-	return []map[string]interface{}{
-		{
-			"ip_start": serviceIps.IpStart,
-			"ip_end":   serviceIps.IpEnd,
+			"auto_scale": autoScaleDetails.AutoScale,
 		},
 	}
 }
