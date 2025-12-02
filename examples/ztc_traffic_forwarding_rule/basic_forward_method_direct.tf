@@ -15,7 +15,7 @@ data "ztc_ip_destination_groups" "this" {
   name = "example"
 }
 
-data "zia_ip_source_groups" "this" {
+data "ztc_ip_source_groups" "this" {
   name = "example"
 }
 
@@ -53,7 +53,7 @@ resource "ztc_traffic_forwarding_rule" "this1" {
     id = [data.ztc_network_service.this.id]
   }
   src_ip_groups {
-    id = [data.zia_ip_source_groups.this.id]
+    id = [data.ztc_ip_source_groups.this.id]
   }
   dest_ip_groups {
     id = [data.ztc_ip_destination_groups.this.id]

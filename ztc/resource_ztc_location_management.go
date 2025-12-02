@@ -26,15 +26,15 @@ func resourceLocationManagement() *schema.Resource {
 				service := zClient.Service
 
 				id := d.Id()
-				_, parseIDErr := strconv.ParseInt(id, 10, 64)
+				idInt, parseIDErr := strconv.ParseInt(id, 10, 64)
 				if parseIDErr == nil {
 					// assume if the passed value is an int
-					d.Set("location_id", id)
+					_ = d.Set("location_id", int(idInt))
 				} else {
 					resp, err := location.GetLocationByName(ctx, service, id)
 					if err == nil {
 						d.SetId(strconv.Itoa(resp.ID))
-						d.Set("location_id", resp.ID)
+						_ = d.Set("location_id", resp.ID)
 					} else {
 						return []*schema.ResourceData{d}, err
 					}

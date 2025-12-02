@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.1 (December 1, 2025)
+
+### Notes
+
+- Release date: **(December 1, 2025)**
+- Supported Terraform version: **v1.x**
+
+### Bug Fixes
+
+- [PR #12](https://github.com/zscaler/terraform-provider-zia/pull/12) - Fixed resources and data sources `ztc_provisioning_url`, `ztc_location_template`.
+
 ## 0.1.0 (December 1, 2025) - 🎉Initial Release🎉
 
 ### Notes
