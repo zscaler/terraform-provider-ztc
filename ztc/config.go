@@ -136,7 +136,7 @@ func NewConfig(d *schema.ResourceData) *Config {
 		config.APIKey = os.Getenv("ZTC_API_KEY")
 	}
 
-	if val, ok := d.GetOk("ZTC_cloud"); ok {
+	if val, ok := d.GetOk("ztc_cloud"); ok {
 		config.ZTCBaseURL = val.(string)
 	}
 	if config.ZTCBaseURL == "" {
@@ -226,6 +226,20 @@ func generateUserAgent(terraformVersion string) string {
 }
 
 func zscalerSDKV2Client(c *Config) (*zscaler.Service, error) {
+	// Validate required credentials for legacy client
+	if c.Username == "" {
+		return nil, fmt.Errorf("username is required for legacy client authentication. Please provide it via the 'username' parameter or ZTC_USERNAME environment variable")
+	}
+	if c.Password == "" {
+		return nil, fmt.Errorf("password is required for legacy client authentication. Please provide it via the 'password' parameter or ZTC_PASSWORD environment variable")
+	}
+	if c.APIKey == "" {
+		return nil, fmt.Errorf("api_key is required for legacy client authentication. Please provide it via the 'api_key' parameter or ZTC_API_KEY environment variable")
+	}
+	if c.ZTCBaseURL == "" {
+		return nil, fmt.Errorf("ztc_cloud is required for legacy client authentication. Please provide it via the 'ztc_cloud' parameter or ZTC_CLOUD environment variable")
+	}
+
 	customUserAgent := generateUserAgent(c.TerraformVersion)
 
 	// Start with base configuration setters
