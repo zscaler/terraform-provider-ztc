@@ -61,7 +61,7 @@ func ZTCProvider() *schema.Provider {
 				Optional:  true,
 				Sensitive: true,
 			},
-			"ztw_cloud": {
+			"ztc_cloud": {
 				Type: schema.TypeString,
 				ValidateFunc: validation.StringInSlice([]string{
 					"zscaler",
