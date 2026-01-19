@@ -12,9 +12,21 @@ description: |-
 Track all ZTC Terraform provider's releases. New resources, features, and bug fixes will be tracked here.
 
 ---
-``Last updated: v0.1.1``
+``Last updated: v0.1.3``
 
 ---
+
+## 0.1.3 (January 19, 2026)
+
+### Notes
+
+- Release date: **(January 19, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Bug Fixes
+
+- [PR #18](https://github.com/zscaler/terraform-provider-ztc/pull/18) - Upgraded to Zscaler-SDK-GO v3.8.13
+[PR #18](https://github.com/zscaler/terraform-provider-ztc/pull/18) - Fixed resource and datasource `ztc_traffic_forwarding_rule` issue to retrieve by ID.
 
 ## 0.1.2 (January 13, 2026)
 

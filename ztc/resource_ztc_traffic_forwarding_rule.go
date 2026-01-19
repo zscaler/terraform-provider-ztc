@@ -344,17 +344,29 @@ func resourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceDa
 
 	id, ok := getIntFromResourceData(d, "rule_id")
 	if !ok {
-		return diag.FromErr(fmt.Errorf("no zia forwarding control rule id is set"))
+		return diag.FromErr(fmt.Errorf("no ztc forwarding control rule id is set"))
 	}
-	resp, err := forwarding_rules.Get(ctx, service, id)
-	if err != nil {
-		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
-			log.Printf("[WARN] Removing forwarding control rule %s from state because it no longer exists in ZIA", d.Id())
-			d.SetId("")
-			return nil
-		}
 
+	// Use GetAll() instead of Get() to reduce API calls during terraform refresh
+	allRules, err := forwarding_rules.GetAll(ctx, service)
+	if err != nil {
 		return diag.FromErr(err)
+	}
+
+	// Find the specific rule by ID
+	var resp *forwarding_rules.ForwardingRules
+	for i := range allRules {
+		if allRules[i].ID == id {
+			resp = &allRules[i]
+			break
+		}
+	}
+
+	// Rule not found
+	if resp == nil {
+		log.Printf("[WARN] Removing forwarding control rule %s from state because it no longer exists in ZIA", d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	processedDestCountries := make([]string, len(resp.DestCountries))

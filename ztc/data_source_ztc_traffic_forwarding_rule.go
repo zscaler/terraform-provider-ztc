@@ -390,23 +390,45 @@ func dataSourceTrafficForwardingRuleRead(ctx context.Context, d *schema.Resource
 	service := zClient.Service
 
 	var resp *forwarding_rules.ForwardingRules
-	id, ok := getIntFromResourceData(d, "id")
-	if ok {
-		log.Printf("[INFO] Getting data for forwarding control rule id: %d\n", id)
-		res, err := forwarding_rules.Get(ctx, service, id)
-		if err != nil {
-			return diag.FromErr(err)
-		}
-		resp = res
-	}
+	id, idOk := getIntFromResourceData(d, "id")
 	name, _ := d.Get("name").(string)
-	if resp == nil && name != "" {
-		log.Printf("[INFO] Getting data for forwarding control rule : %s\n", name)
-		res, err := forwarding_rules.GetRulesByName(ctx, service, name)
-		if err != nil {
-			return diag.FromErr(err)
+
+	// Use GetAll() instead of Get() as the API doesn't provide a GET by ID method
+	// Build query filters based on provided attributes
+	var allRules []forwarding_rules.ForwardingRules
+	var err error
+
+	if name != "" {
+		log.Printf("[INFO] Getting forwarding control rules with name filter: %s\n", name)
+		allRules, err = forwarding_rules.GetAll(ctx, service, forwarding_rules.ForwardingRulesQuery{
+			RuleName: name,
+		})
+	} else {
+		log.Printf("[INFO] Getting all forwarding control rules\n")
+		allRules, err = forwarding_rules.GetAll(ctx, service)
+	}
+
+	if err != nil {
+		return diag.FromErr(err)
+	}
+
+	// Find the specific rule by ID or name
+	if idOk && id > 0 {
+		log.Printf("[INFO] Searching for forwarding control rule by id: %d\n", id)
+		for i := range allRules {
+			if allRules[i].ID == id {
+				resp = &allRules[i]
+				break
+			}
 		}
-		resp = res
+	} else if name != "" {
+		log.Printf("[INFO] Searching for forwarding control rule by name: %s\n", name)
+		for i := range allRules {
+			if allRules[i].Name == name {
+				resp = &allRules[i]
+				break
+			}
+		}
 	}
 
 	if resp != nil {
