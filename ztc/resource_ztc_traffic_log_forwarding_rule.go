@@ -120,89 +120,88 @@ func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.R
 	service := zClient.Service
 
 	req := expandForwardingLogRule(d)
-	log.Printf("[INFO] Creating zia forwarding log rule\n%+v\n", req)
+	log.Printf("[INFO] Creating ztc traffic log forwarding rule\n%+v\n", req)
 
 	start := time.Now()
 
-	trafficForwardingLogLock.Lock()
-	if trafficForwardingLogStartingOrder == 0 {
-		list, _ := traffic_log_rules.GetAll(ctx, service)
-		for _, r := range list {
-			if r.Order > trafficForwardingLogStartingOrder {
-				trafficForwardingLogStartingOrder = r.Order
-			}
-		}
+	for {
+		trafficForwardingLogLock.Lock()
 		if trafficForwardingLogStartingOrder == 0 {
-			trafficForwardingLogStartingOrder = 1
-		} else {
-			trafficForwardingLogStartingOrder++
-		}
-	}
-	trafficForwardingLogLock.Unlock()
-	startWithoutLocking := time.Now()
-
-	// Store the intended order from HCL
-	intendedOrder := req.Order
-	intendedRank := req.Rank
-	if intendedRank < 7 {
-		// always start rank 7 rules at the next available order after all ranked rules
-		req.Rank = 7
-	}
-	req.Order = trafficForwardingLogStartingOrder
-	resp, err := traffic_log_rules.Create(ctx, service, &req)
-
-	// Fail immediately if INVALID_INPUT_ARGUMENT is detected
-	if customErr := failFastOnErrorCodes(err); customErr != nil {
-		return diag.Errorf("%v", customErr)
-	}
-
-	if err != nil {
-		reg := regexp.MustCompile("Rule with rank [0-9]+ is not allowed at order [0-9]+")
-		if strings.Contains(err.Error(), "INVALID_INPUT_ARGUMENT") {
-			if reg.MatchString(err.Error()) {
-				return diag.FromErr(fmt.Errorf("error creating resource: %s, please check the order %d vs rank %d, current rules:%s , err:%s", req.Name, intendedOrder, req.Rank, currentOrderVsRankWording(ctx, zClient), err))
+			list, _ := traffic_log_rules.GetAll(ctx, service)
+			for _, r := range list {
+				if r.Order > trafficForwardingLogStartingOrder {
+					trafficForwardingLogStartingOrder = r.Order
+				}
+			}
+			if trafficForwardingLogStartingOrder == 0 {
+				trafficForwardingLogStartingOrder = 1
 			}
 		}
-		return diag.FromErr(fmt.Errorf("error creating resource: %s", err))
-	}
+		trafficForwardingLogLock.Unlock()
+		startWithoutLocking := time.Now()
 
-	log.Printf("[INFO] Created zia forwarding log rule request. took:%s, without locking:%s,  ID: %v\n", time.Since(start), time.Since(startWithoutLocking), resp)
-	// Use separate resource type for rank 7 rules to avoid mixing with ranked rules
-	resourceType := "traffic_forwarding_log_rule"
+		intendedOrder := req.Order
+		intendedRank := req.Rank
+		if intendedRank < 7 {
+			// always start rank 7 rules at the next available order after all ranked rules
+			req.Rank = 7
+		}
+		req.Order = trafficForwardingLogStartingOrder
+		resp, err := traffic_log_rules.Create(ctx, service, &req)
 
-	reorderWithBeforeReorder(
-		OrderRule{Order: intendedOrder, Rank: intendedRank},
-		resp.ID,
-		resourceType,
-		func() (int, error) {
-			allRules, err := traffic_log_rules.GetAll(ctx, service)
-			if err != nil {
-				return 0, err
+		// Fail immediately if INVALID_INPUT_ARGUMENT is detected
+		if customErr := failFastOnErrorCodes(err); customErr != nil {
+			return diag.Errorf("%v", customErr)
+		}
+
+		if err != nil {
+			reg := regexp.MustCompile("Rule with rank [0-9]+ is not allowed at order [0-9]+")
+			if strings.Contains(err.Error(), "INVALID_INPUT_ARGUMENT") {
+				if reg.MatchString(err.Error()) {
+					return diag.FromErr(fmt.Errorf("error creating resource: %s, please check the order %d vs rank %d, current rules:%s , err:%s", req.Name, intendedOrder, req.Rank, currentOrderVsRankWording(ctx, zClient), err))
+				}
 			}
-			// Count all rules including predefined ones for proper ordering
-			return len(allRules), nil
-		},
-		func(id int, order OrderRule) error {
-			// Custom updateOrder that handles predefined rules
-			rule, err := traffic_log_rules.Get(ctx, service, id)
-			if err != nil {
+			return diag.FromErr(fmt.Errorf("error creating resource: %s", err))
+		}
+
+		log.Printf("[INFO] Created ztc traffic log forwarding rule request. Took: %s, without locking: %s, ID: %v\n", time.Since(start), time.Since(startWithoutLocking), resp)
+		// Use separate resource type for rank 7 rules to avoid mixing with ranked rules
+		resourceType := "traffic_forwarding_log_rule"
+
+		reorderWithBeforeReorder(
+			OrderRule{Order: intendedOrder, Rank: intendedRank},
+			resp.ID,
+			resourceType,
+			func() (int, error) {
+				allRules, err := traffic_log_rules.GetAll(ctx, service)
+				if err != nil {
+					return 0, err
+				}
+				// Count all rules including predefined ones for proper ordering
+				return len(allRules), nil
+			},
+			func(id int, order OrderRule) error {
+				// Custom updateOrder that handles predefined rules
+				rule, err := traffic_log_rules.Get(ctx, service, id)
+				if err != nil {
+					return err
+				}
+
+				rule.Order = order.Order
+				rule.Rank = order.Rank
+				_, err = traffic_log_rules.Update(ctx, service, id, rule)
 				return err
-			}
+			},
+			nil, // Remove beforeReorder function to avoid adding too many rules to the map
+		)
 
-			rule.Order = order.Order
-			rule.Rank = order.Rank
-			_, err = traffic_log_rules.Update(ctx, service, id, rule)
-			return err
-		},
-		nil, // Remove beforeReorder function to avoid adding too many rules to the map
-	)
+		d.SetId(strconv.Itoa(resp.ID))
+		_ = d.Set("rule_id", resp.ID)
 
-	d.SetId(strconv.Itoa(resp.ID))
-	_ = d.Set("rule_id", resp.ID)
+		markOrderRuleAsDone(resp.ID, resourceType)
 
-	markOrderRuleAsDone(resp.ID, resourceType)
-
-	return resourceTrafficForwardingLogRuleRuleRead(ctx, d, meta)
+		return resourceTrafficForwardingLogRuleRuleRead(ctx, d, meta)
+	}
 }
 
 func resourceTrafficForwardingLogRuleRuleRead(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
@@ -211,12 +210,12 @@ func resourceTrafficForwardingLogRuleRuleRead(ctx context.Context, d *schema.Res
 
 	id, ok := getIntFromResourceData(d, "rule_id")
 	if !ok {
-		return diag.FromErr(fmt.Errorf("no zia forwarding log rule id is set"))
+		return diag.FromErr(fmt.Errorf("no ztc traffic log forwarding rule id is set"))
 	}
 	resp, err := traffic_log_rules.Get(ctx, service, id)
 	if err != nil {
 		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
-			log.Printf("[WARN] Removing forwarding log rule %s from state because it no longer exists in ZIA", d.Id())
+			log.Printf("[WARN] Removing traffic log forwarding rule %s from state because it no longer exists in ZTC", d.Id())
 			d.SetId("")
 			return nil
 		}
@@ -224,7 +223,7 @@ func resourceTrafficForwardingLogRuleRuleRead(ctx context.Context, d *schema.Res
 		return diag.FromErr(err)
 	}
 
-	log.Printf("[INFO] Getting forwarding log rule:\n%+v\n", resp)
+	log.Printf("[INFO] Getting traffic log forwarding rule:\n%+v\n", resp)
 
 	d.SetId(fmt.Sprintf("%d", resp.ID))
 	_ = d.Set("name", resp.Name)
@@ -254,10 +253,10 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 
 	id, ok := getIntFromResourceData(d, "rule_id")
 	if !ok {
-		log.Printf("[ERROR] forwarding log rule ID not set: %v\n", id)
-		return diag.FromErr(fmt.Errorf("forwarding log rule ID not set"))
+		log.Printf("[ERROR] traffic log forwarding rule ID not set: %v\n", id)
+		return diag.FromErr(fmt.Errorf("traffic log forwarding rule ID not set"))
 	}
-	log.Printf("[INFO] Updating forwarding log rule ID: %v\n", id)
+	log.Printf("[INFO] Updating traffic log forwarding rule ID: %v\n", id)
 	req := expandForwardingLogRule(d)
 
 	if _, err := traffic_log_rules.Get(ctx, service, id); err != nil {
@@ -268,7 +267,7 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 	}
 	existingRules, err := traffic_log_rules.GetAll(ctx, service)
 	if err != nil {
-		log.Printf("[ERROR] error getting all forwarding log rules: %v", err)
+		log.Printf("[ERROR] error getting all traffic log forwarding rules: %v", err)
 	}
 	sort.Slice(existingRules, func(i, j int) bool {
 		return existingRules[i].Rank < existingRules[j].Rank || (existingRules[i].Rank == existingRules[j].Rank && existingRules[i].Order < existingRules[j].Order)
@@ -293,7 +292,7 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 
 	if err != nil {
 		if strings.Contains(err.Error(), "INVALID_INPUT_ARGUMENT") {
-			log.Printf("[INFO] Updating forwarding log rule ID: %v, got INVALID_INPUT_ARGUMENT\n", id)
+			log.Printf("[INFO] Updating traffic log forwarding rule ID: %v, got INVALID_INPUT_ARGUMENT\n", id)
 		}
 		return diag.FromErr(fmt.Errorf("error updating resource: %s", err))
 	}
@@ -339,13 +338,13 @@ func resourceTrafficForwardingLogRuleRuleDelete(ctx context.Context, d *schema.R
 
 	id, ok := getIntFromResourceData(d, "rule_id")
 	if !ok {
-		return diag.FromErr(fmt.Errorf("forwarding log rule ID not set: %v", id))
+		return diag.FromErr(fmt.Errorf("traffic log forwarding rule ID not set: %v", id))
 	}
 
 	// Retrieve the rule to check if it's a predefined one
 	rule, err := traffic_log_rules.Get(ctx, service, id)
 	if err != nil {
-		return diag.FromErr(fmt.Errorf("error retrieving forwarding control rule %d: %v", id, err))
+		return diag.FromErr(fmt.Errorf("error retrieving traffic log forwarding rule %d: %v", id, err))
 	}
 
 	// Validate if the rule can be deleted
@@ -353,13 +352,13 @@ func resourceTrafficForwardingLogRuleRuleDelete(ctx context.Context, d *schema.R
 		return diag.FromErr(err)
 	}
 
-	log.Printf("[INFO] Deleting forwarding log rule ID: %v", id)
+	log.Printf("[INFO] Deleting traffic log forwarding rule ID: %v", id)
 	if _, err := traffic_log_rules.Delete(ctx, service, id); err != nil {
-		return diag.FromErr(fmt.Errorf("error deleting forwarding log rule %d: %v", id, err))
+		return diag.FromErr(fmt.Errorf("error deleting traffic log forwarding rule %d: %v", id, err))
 	}
 
 	d.SetId("")
-	log.Printf("[INFO] Forwarding log rule deleted")
+	log.Printf("[INFO] Traffic log forwarding rule deleted")
 
 	return nil
 }
