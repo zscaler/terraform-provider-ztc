@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.1.4 (February 3, 2026)
+
+### Notes
+
+- Release date: **(February 3, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Bug Fixes
+
+- [PR #21](https://github.com/zscaler/terraform-provider-ztc/pull/18) - Upgraded to Zscaler-SDK-GO v3.8.15
+- [PR #21](https://github.com/zscaler/terraform-provider-ztc/pull/21) - Fixed `ztc_traffic_forwarding_dns_rule`,  `ztc_traffic_forwarding_rule` and `ztc_traffic_log_forwarding_rule` resource reorder logic due to recent API enforcement changes. Included safeguard to prevent unnecessary reordering when the order is already correct. 
+
 ## 0.1.3 (January 19, 2026)
 
 ### Notes
@@ -10,7 +22,7 @@
 ### Bug Fixes
 
 - [PR #18](https://github.com/zscaler/terraform-provider-ztc/pull/18) - Upgraded to Zscaler-SDK-GO v3.8.13
-[PR #18](https://github.com/zscaler/terraform-provider-ztc/pull/18) - Fixed resource and datasource `ztc_traffic_forwarding_rule` issue to retrieve by ID.
+- [PR #18](https://github.com/zscaler/terraform-provider-ztc/pull/18) - Fixed resource and datasource `ztc_traffic_forwarding_rule` issue to retrieve by ID.
 
 ## 0.1.2 (January 13, 2026)
 
