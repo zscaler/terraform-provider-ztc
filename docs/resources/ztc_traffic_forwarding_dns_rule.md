@@ -17,6 +17,8 @@ description: |-
 
 Use the **ztc_traffic_forwarding_dns_rule** resource allows the creation and management of traffic forwarding DNS rule in the Zscaler Cloud and Branch Connector Portal.
 
+**NOTE**: Resource available only via OneAPI
+
 ## Example Usage - DNS Forwarding Group - Action REDIR_REQ
 
 ```hcl

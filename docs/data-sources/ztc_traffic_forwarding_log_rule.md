@@ -17,6 +17,8 @@ description: |-
 
 Use the **ztc_traffic_forwarding_log_rule** data source to get information about forwarding log rule available in the Zscaler Cloud and Branch Connector Portal.
 
+**NOTE**: Resource available only via OneAPI
+
 ## Example Usage - Retrieve by Name
 
 ```hcl

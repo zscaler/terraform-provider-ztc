@@ -112,4 +112,15 @@ See the same steps as in [Error: Failed to install provider](#error-failed-to-in
 
 This kind of errors happens when the 32-bit version of ZTC Terraform provider is used, usually on Microsoft Windows. To fix the issue you need to switch to use of the 64-bit versions of Terraform and ZTC Terraform provider.
 
+## Error: Unauthorized access to private resource
 
+This error indicates that the resource is NOT accessible via the Legacy API and only via OneAPI. See documentation notes in each resource.
+
+```sh
+│ Error: error retrieving forwarding control rule 1263518: Error: {
+│   "code": null,
+│   "message": "Unauthorized access to private resource",
+│   "url": "https://connector.zscalerbeta.net/api/v1/ecRules/ecRdr/1263518",
+│   "status": 403
+│ }
+```
