@@ -17,6 +17,8 @@ description: |-
 
 Use the **ztc_traffic_forwarding_dns_rule** data source to get information about forwarding dns rule available in the Zscaler Cloud and Branch Connector Portal.
 
+**NOTE**: Resource available only via OneAPI
+
 ## Example Usage - Retrieve by Name
 
 ```hcl

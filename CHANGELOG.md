@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.5 (February 5, 2026)
+
+### Notes
+
+- Release date: **(February 3, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Bug Fixes
+
+- [PR #22](https://github.com/zscaler/terraform-provider-ztc/pull/22) - Fixed `ztc_traffic_forwarding_rule` READ function to accomodate OneAPI vs Legacy API availability.
+
 ## 0.1.4 (February 3, 2026)
 
 ### Notes

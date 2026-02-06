@@ -14,7 +14,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
-	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/errorx"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 )
@@ -343,18 +342,29 @@ func resourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceDa
 
 	id, ok := getIntFromResourceData(d, "rule_id")
 	if !ok {
-		return diag.FromErr(fmt.Errorf("no ztc traffic forwarding rule id is set"))
+		return diag.FromErr(fmt.Errorf("no zia firewall filtering rule id is set"))
 	}
 
-	resp, err := forwarding_rules.Get(ctx, service, id)
+	// Use GetAll() instead of Get() to reduce API calls during terraform refresh
+	allRules, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
-		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
-			log.Printf("[WARN] Removing traffic forwarding rule %s from state because it no longer exists in ZTC", d.Id())
-			d.SetId("")
-			return nil
-		}
-
 		return diag.FromErr(err)
+	}
+
+	// Find the specific rule by ID
+	var resp *forwarding_rules.ForwardingRules
+	for i := range allRules {
+		if allRules[i].ID == id {
+			resp = &allRules[i]
+			break
+		}
+	}
+
+	// Rule not found
+	if resp == nil {
+		log.Printf("[WARN] Removing forwarding rule %s from state because it no longer exists in ZIA", d.Id())
+		d.SetId("")
+		return nil
 	}
 
 	processedDestCountries := make([]string, len(resp.DestCountries))
@@ -441,12 +451,12 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 	log.Printf("[INFO] Updating traffic forwarding rule ID: %v\n", id)
 	req := expandForwardingControlRule(d)
 
-	if _, err := forwarding_rules.Get(ctx, service, id); err != nil {
-		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
-			d.SetId("")
-			return nil
-		}
-	}
+	// if _, err := forwarding_rules.Get(ctx, service, id); err != nil {
+	// 	if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
+	// 		d.SetId("")
+	// 		return nil
+	// 	}
+	// }
 
 	existingRules, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
