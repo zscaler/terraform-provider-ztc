@@ -299,12 +299,12 @@ func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.Resou
 	log.Printf("[INFO] Updating traffic dns forwarding rule ID: %v\n", id)
 	req := expandForwardingDNSRule(d)
 
-	if _, err := traffic_dns_rules.Get(ctx, service, id); err != nil {
-		if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
-			d.SetId("")
-			return nil
-		}
-	}
+	// if _, err := traffic_dns_rules.Get(ctx, service, id); err != nil {
+	// 	if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
+	// 		d.SetId("")
+	// 		return nil
+	// 	}
+	// }
 	existingRules, err := traffic_dns_rules.GetAll(ctx, service)
 	if err != nil {
 		log.Printf("[ERROR] error getting all traffic dns forwarding rules: %v", err)
@@ -382,15 +382,15 @@ func resourceTrafficForwardingDNSRuleDelete(ctx context.Context, d *schema.Resou
 	}
 
 	// Retrieve the rule to check if it's a predefined one
-	rule, err := traffic_dns_rules.Get(ctx, service, id)
-	if err != nil {
-		return diag.FromErr(fmt.Errorf("error retrieving traffic dns forwarding rule %d: %v", id, err))
-	}
+	// rule, err := traffic_dns_rules.Get(ctx, service, id)
+	// if err != nil {
+	// 	return diag.FromErr(fmt.Errorf("error retrieving traffic dns forwarding rule %d: %v", id, err))
+	// }
 
-	// Validate if the rule can be deleted
-	if err := validatePredefinedDNSRules(*rule); err != nil {
-		return diag.FromErr(err)
-	}
+	// // Validate if the rule can be deleted
+	// if err := validatePredefinedDNSRules(*rule); err != nil {
+	// 	return diag.FromErr(err)
+	// }
 
 	log.Printf("[INFO] Deleting traffic dns forwarding rule ID: %v", id)
 	if _, err := traffic_dns_rules.Delete(ctx, service, id); err != nil {

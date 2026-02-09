@@ -14,6 +14,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
+	"github.com/zscaler/zscaler-sdk-go/v3/zscaler"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/common"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/policy_management/forwarding_rules"
 )
@@ -22,6 +23,20 @@ var (
 	forwardingControlLock          sync.Mutex
 	forwardingControlStartingOrder int
 )
+
+func getRule(ctx context.Context, service *zscaler.Service, id int) (*forwarding_rules.ForwardingRules, error) {
+	allRules, err := forwarding_rules.GetAll(ctx, service)
+	if err != nil {
+		return nil, err
+	}
+	for i := range allRules {
+		if allRules[i].ID == id {
+			var rule forwarding_rules.ForwardingRules = allRules[i]
+			return &rule, nil
+		}
+	}
+	return nil, fmt.Errorf("rule with ID %d not found", id)
+}
 
 func resourceTrafficForwardingRule() *schema.Resource {
 	return &schema.Resource{
@@ -313,12 +328,14 @@ func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.Resource
 				return len(allRules), nil
 			},
 			func(id int, order OrderRule) error {
-				// Custom updateOrder that handles predefined rules
-				rule, err := forwarding_rules.Get(ctx, service, id)
+				rule, err := getRule(ctx, service, id)
 				if err != nil {
 					return err
 				}
 
+				// to avoid the STALE_CONFIGURATION_ERROR
+				rule.LastModifiedTime = 0
+				rule.LastModifiedBy = nil
 				rule.Order = order.Order
 				rule.Rank = order.Rank
 				_, err = forwarding_rules.Update(ctx, service, id, rule)
@@ -345,19 +362,9 @@ func resourceTrafficForwardingRuleRead(ctx context.Context, d *schema.ResourceDa
 		return diag.FromErr(fmt.Errorf("no zia firewall filtering rule id is set"))
 	}
 
-	// Use GetAll() instead of Get() to reduce API calls during terraform refresh
-	allRules, err := forwarding_rules.GetAll(ctx, service)
+	resp, err := getRule(ctx, service, id)
 	if err != nil {
 		return diag.FromErr(err)
-	}
-
-	// Find the specific rule by ID
-	var resp *forwarding_rules.ForwardingRules
-	for i := range allRules {
-		if allRules[i].ID == id {
-			resp = &allRules[i]
-			break
-		}
 	}
 
 	// Rule not found
@@ -451,13 +458,6 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 	log.Printf("[INFO] Updating traffic forwarding rule ID: %v\n", id)
 	req := expandForwardingControlRule(d)
 
-	// if _, err := forwarding_rules.Get(ctx, service, id); err != nil {
-	// 	if respErr, ok := err.(*errorx.ErrorResponse); ok && respErr.IsObjectNotFound() {
-	// 		d.SetId("")
-	// 		return nil
-	// 	}
-	// }
-
 	existingRules, err := forwarding_rules.GetAll(ctx, service)
 	if err != nil {
 		log.Printf("[ERROR] error getting all traffic forwarding rules: %v", err)
@@ -483,13 +483,6 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 		return diag.Errorf("%v", customErr)
 	}
 
-	if err != nil {
-		if strings.Contains(err.Error(), "INVALID_INPUT_ARGUMENT") {
-			log.Printf("[INFO] Updating traffic forwarding rule ID: %v, got INVALID_INPUT_ARGUMENT\n", id)
-		}
-		return diag.FromErr(fmt.Errorf("error updating resource: %s", err))
-	}
-
 	reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, "forwarding_control_rule",
 		func() (int, error) {
 			allRules, err := forwarding_rules.GetAll(ctx, service)
@@ -500,15 +493,15 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 			return len(allRules), nil
 		},
 		func(id int, order OrderRule) error {
-			rule, err := forwarding_rules.Get(ctx, service, id)
+			// Use GetAll instead of Get to avoid 403 on individual rule endpoint
+			rule, err := getRule(ctx, service, id)
 			if err != nil {
 				return err
 			}
-			// Optional: avoid unnecessary updates if the current order is already correct
-			if rule.Order == order.Order && rule.Rank == order.Rank {
-				return nil
-			}
 
+			// to avoid the STALE_CONFIGURATION_ERROR
+			rule.LastModifiedTime = 0
+			rule.LastModifiedBy = nil
 			rule.Order = order.Order
 			rule.Rank = order.Rank
 			_, err = forwarding_rules.Update(ctx, service, id, rule)
@@ -532,17 +525,6 @@ func resourceTrafficForwardingRuleDelete(ctx context.Context, d *schema.Resource
 	id, ok := getIntFromResourceData(d, "rule_id")
 	if !ok {
 		return diag.FromErr(fmt.Errorf("traffic forwarding rule ID not set: %v", id))
-	}
-
-	// Retrieve the rule to check if it's a predefined one
-	rule, err := forwarding_rules.Get(ctx, service, id)
-	if err != nil {
-		return diag.FromErr(fmt.Errorf("error retrieving traffic forwarding rule %d: %v", id, err))
-	}
-
-	// Validate if the rule can be deleted
-	if err := validatePredefinedRules(*rule); err != nil {
-		return diag.FromErr(err)
 	}
 
 	log.Printf("[INFO] Deleting traffic forwarding rule ID: %v", id)
