@@ -223,6 +223,7 @@ func resourceTrafficForwardingDNSRuleCreate(ctx context.Context, d *schema.Resou
 		_ = d.Set("rule_id", resp.ID)
 
 		markOrderRuleAsDone(resp.ID, resourceType)
+		waitForReorder(resourceType)
 
 		return resourceTrafficForwardingDNSRuleRead(ctx, d, meta)
 	}
@@ -368,6 +369,7 @@ func resourceTrafficForwardingDNSRuleUpdate(ctx context.Context, d *schema.Resou
 		return diags
 	}
 	markOrderRuleAsDone(req.ID, "traffic_forwarding_dns_rule")
+	waitForReorder("traffic_forwarding_dns_rule")
 
 	return nil
 }

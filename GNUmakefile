@@ -39,9 +39,13 @@ sweep:
 	@echo "WARNING: This will destroy infrastructure. Use only in development accounts."
 	go test $(TEST) -sweep=$(SWEEP) $(SWEEPARGS)
 
-test:
-	echo $(TEST) | grep -q './...' && \
-		xargs -t -n4 go test $(TESTARGS) $(TEST_FILTER) -timeout=30s -parallel=10
+test: test-unit
+	echo $(TEST) | \
+		xargs -t -n4 go test $(TESTARGS) $(TEST_FILTER) -timeout=30s -parallel=5
+
+test-unit:
+	@echo "==> Running unit tests..."
+	@go test -v ./$(PKG_NAME)/ -run "TestSortOrders|TestRuleIDOrderPairList|TestMarkOrderRuleAsDone|TestReorder" -timeout=60s
 
 testacc:
 	TF_ACC=1 go test $(TEST) $(TESTARGS) $(TEST_FILTER) -timeout 120m
