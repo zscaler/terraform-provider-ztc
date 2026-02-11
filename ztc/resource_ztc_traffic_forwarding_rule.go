@@ -348,6 +348,7 @@ func resourceTrafficForwardingRuleCreate(ctx context.Context, d *schema.Resource
 		_ = d.Set("rule_id", resp.ID)
 
 		markOrderRuleAsDone(resp.ID, resourceType)
+		waitForReorder(resourceType)
 
 		return resourceTrafficForwardingRuleRead(ctx, d, meta)
 	}
@@ -514,6 +515,7 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 		return diags
 	}
 	markOrderRuleAsDone(req.ID, "forwarding_control_rule")
+	waitForReorder("forwarding_control_rule")
 
 	return nil
 }

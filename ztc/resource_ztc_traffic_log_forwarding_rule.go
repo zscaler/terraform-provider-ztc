@@ -199,6 +199,7 @@ func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.R
 		_ = d.Set("rule_id", resp.ID)
 
 		markOrderRuleAsDone(resp.ID, resourceType)
+		waitForReorder(resourceType)
 
 		return resourceTrafficForwardingLogRuleRuleRead(ctx, d, meta)
 	}
@@ -328,6 +329,7 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 		return diags
 	}
 	markOrderRuleAsDone(req.ID, "traffic_forwarding_log_rule")
+	waitForReorder("traffic_forwarding_log_rule")
 
 	return nil
 }

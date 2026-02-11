@@ -12,9 +12,20 @@ description: |-
 Track all ZTC Terraform provider's releases. New resources, features, and bug fixes will be tracked here.
 
 ---
-``Last updated: v0.1.6``
+``Last updated: v0.1.7``
 
 ---
+
+## 0.1.7 (February 11, 2026)
+
+### Notes
+
+- Release date: **(February 11, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Bug Fixes
+
+- [PR #24](https://github.com/zscaler/terraform-provider-ztc/pull/24) - Fixed rule reorder race condition where the reorder timer could fire before all rules of a type were registered, causing incorrect ordering when multiple rule types are deployed together. The reorder goroutine now runs asynchronously with automatic re-run for late-arriving rules, and all rules wait for the reorder to complete before reading final state.
 
 ## 0.1.6 (February 9, 2026)
 
