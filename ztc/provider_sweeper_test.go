@@ -11,6 +11,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/resource"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/terraform"
 	"github.com/zscaler/terraform-provider-ztc/ztc/common/resourcetype"
+	dnsgateway "github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/dns_gateway"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/dns_forwarding_gateway"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/forwarding_gateways/zia_forwarding_gateway"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/locationmanagement/locationtemplate"
@@ -87,6 +88,7 @@ func TestRunForcedSweeper(t *testing.T) {
 	sweepTestTrafficForwardingRule(testClient)
 	sweepTestZIAForwardingGateway(testClient)
 	sweepTestDNSForwardingGateway(testClient)
+	sweepTestDNSGateway(testClient)
 	sweepTestLocationTemplate(testClient)
 	sweepTestProvisioningURL(testClient)
 }
@@ -357,6 +359,35 @@ func sweepTestDNSForwardingGateway(client *testClient) error {
 		}
 	}
 	// Log errors encountered during the deletion process
+	if len(errorList) > 0 {
+		for _, err := range errorList {
+			sweeperLogger.Error(err.Error())
+		}
+	}
+	return condenseError(errorList)
+}
+
+func sweepTestDNSGateway(client *testClient) error {
+	var errorList []error
+
+	service := &zscaler.Service{
+		Client: client.sdkV3Client,
+	}
+
+	gateways, err := dnsgateway.GetAll(context.Background(), service)
+	if err != nil {
+		return err
+	}
+	sweeperLogger.Warn(fmt.Sprintf("Found %d resources to sweep", len(gateways)))
+	for _, b := range gateways {
+		if strings.HasPrefix(b.Name, testResourcePrefix) || strings.HasPrefix(b.Name, updateResourcePrefix) {
+			if _, err := dnsgateway.Delete(context.Background(), service, b.ID); err != nil {
+				errorList = append(errorList, err)
+				continue
+			}
+			logSweptResource(resourcetype.DNSGateway, fmt.Sprintf("%d", b.ID), b.Name)
+		}
+	}
 	if len(errorList) > 0 {
 		for _, err := range errorList {
 			sweeperLogger.Error(err.Error())

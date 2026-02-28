@@ -181,12 +181,14 @@ func resourceTrafficForwardingLogRuleRuleCreate(ctx context.Context, d *schema.R
 				return len(allRules), nil
 			},
 			func(id int, order OrderRule) error {
-				// Custom updateOrder that handles predefined rules
 				rule, err := traffic_log_rules.Get(ctx, service, id)
 				if err != nil {
 					return err
 				}
 
+				// to avoid the STALE_CONFIGURATION_ERROR
+				rule.LastModifiedTime = 0
+				rule.LastModifiedBy = nil
 				rule.Order = order.Order
 				rule.Rank = order.Rank
 				_, err = traffic_log_rules.Update(ctx, service, id, rule)
@@ -282,9 +284,6 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 	req.Order = nextAvailableOrder
 
 	_, err = traffic_log_rules.Update(ctx, service, id, &req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 
 	// Fail immediately if INVALID_INPUT_ARGUMENT is detected
 	if customErr := failFastOnErrorCodes(err); customErr != nil {
@@ -292,9 +291,6 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 	}
 
 	if err != nil {
-		if strings.Contains(err.Error(), "INVALID_INPUT_ARGUMENT") {
-			log.Printf("[INFO] Updating traffic log forwarding rule ID: %v, got INVALID_INPUT_ARGUMENT\n", id)
-		}
 		return diag.FromErr(fmt.Errorf("error updating resource: %s", err))
 	}
 
@@ -312,11 +308,10 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 			if err != nil {
 				return err
 			}
-			// Optional: avoid unnecessary updates if the current order is already correct
-			if rule.Order == order.Order && rule.Rank == order.Rank {
-				return nil
-			}
 
+			// to avoid the STALE_CONFIGURATION_ERROR
+			rule.LastModifiedTime = 0
+			rule.LastModifiedBy = nil
 			rule.Order = order.Order
 			rule.Rank = order.Rank
 			_, err = traffic_log_rules.Update(ctx, service, id, rule)
@@ -325,13 +320,10 @@ func resourceTrafficForwardingLogRuleRuleUpdate(ctx context.Context, d *schema.R
 		nil, // Remove beforeReorder function to avoid adding too many rules to the map
 	)
 
-	if diags := resourceTrafficForwardingLogRuleRuleRead(ctx, d, meta); diags.HasError() {
-		return diags
-	}
 	markOrderRuleAsDone(req.ID, "traffic_forwarding_log_rule")
 	waitForReorder("traffic_forwarding_log_rule")
 
-	return nil
+	return resourceTrafficForwardingLogRuleRuleRead(ctx, d, meta)
 }
 
 func resourceTrafficForwardingLogRuleRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

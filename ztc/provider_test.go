@@ -56,6 +56,7 @@ func TestMain(m *testing.M) {
 		setupSweeper(resourcetype.ProvisioningURL, sweepTestProvisioningURL)
 		setupSweeper(resourcetype.ZTCForwardingGateway, sweepTestZIAForwardingGateway)
 		setupSweeper(resourcetype.DNSForwardingGateway, sweepTestDNSForwardingGateway)
+		setupSweeper(resourcetype.DNSGateway, sweepTestDNSGateway)
 
 	}
 	resource.TestMain(m)

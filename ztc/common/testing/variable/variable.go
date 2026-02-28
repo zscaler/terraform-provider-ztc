@@ -52,3 +52,9 @@ const (
 	ForwardECDNSGatewaySecondary = "LAN_SEC_DNS_AS_SEC"
 	ForwardDNSFailureBehavior    = "FAIL_ALLOW_IGNORE_DNAT"
 )
+
+const (
+	DNSGatewayECOptionsPrimary   = "LAN_PRI_DNS_AS_PRI"
+	DNSGatewayECOptionsSecondary = "LAN_SEC_DNS_AS_SEC"
+	DNSGatewayFailureBehavior    = "FAIL_RET_ERR"
+)
