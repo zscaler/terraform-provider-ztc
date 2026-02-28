@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.8 (February 27, 2026)
+
+### Notes
+
+- Release date: **(February 27, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Enhancements
+
+- [PR #27](https://github.com/zscaler/terraform-provider-ztc/pull/27) - Added new resource and data source `ztc_dns_gateway` for managing DNS Gateway configurations.
+
+### Bug Fixes
+
+- [PR #27](https://github.com/zscaler/terraform-provider-ztc/pull/27)  - Fixed `UpdateContext` in all ordered rule resources to defer `ReadContext` until after the reorder mechanism completes, preventing stale order values from being stored in state.
+
 ## 0.1.7 (February 11, 2026)
 
 ### Notes

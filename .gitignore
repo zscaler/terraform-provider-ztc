@@ -27,6 +27,8 @@ website/node_modules
 .*.swp
 .idea
 .vscode
+.claude
+.cursor
 *.iml
 *.test
 *.iml

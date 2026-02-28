@@ -475,13 +475,14 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 	req.Order = nextAvailableOrder
 
 	_, err = forwarding_rules.Update(ctx, service, id, &req)
-	if err != nil {
-		return diag.FromErr(err)
-	}
 
 	// Fail immediately if INVALID_INPUT_ARGUMENT is detected
 	if customErr := failFastOnErrorCodes(err); customErr != nil {
 		return diag.Errorf("%v", customErr)
+	}
+
+	if err != nil {
+		return diag.FromErr(err)
 	}
 
 	reorderWithBeforeReorder(OrderRule{Order: intendedOrder, Rank: intendedRank}, req.ID, "forwarding_control_rule",
@@ -494,7 +495,6 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 			return len(allRules), nil
 		},
 		func(id int, order OrderRule) error {
-			// Use GetAll instead of Get to avoid 403 on individual rule endpoint
 			rule, err := getRule(ctx, service, id)
 			if err != nil {
 				return err
@@ -511,13 +511,10 @@ func resourceTrafficForwardingRuleUpdate(ctx context.Context, d *schema.Resource
 		nil, // Remove beforeReorder function to avoid adding too many rules to the map
 	)
 
-	if diags := resourceTrafficForwardingRuleRead(ctx, d, meta); diags.HasError() {
-		return diags
-	}
 	markOrderRuleAsDone(req.ID, "forwarding_control_rule")
 	waitForReorder("forwarding_control_rule")
 
-	return nil
+	return resourceTrafficForwardingRuleRead(ctx, d, meta)
 }
 
 func resourceTrafficForwardingRuleDelete(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {

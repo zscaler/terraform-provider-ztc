@@ -121,6 +121,7 @@ func ZTCProvider() *schema.Provider {
 			"ztc_network_service_groups":      resourceNetworkServiceGroups(),
 			"ztc_account_groups":              resourceAccountGroup(),
 			"ztc_public_cloud_info":           resourcePublicCloudInfo(),
+			"ztc_dns_gateway":                resourceDNSGateway(),
 		},
 
 		DataSourcesMap: map[string]*schema.Resource{
@@ -143,6 +144,7 @@ func ZTCProvider() *schema.Provider {
 			"ztc_public_cloud_info":           dataSourcePublicCloudInfo(),
 			"ztc_supported_regions":           dataSourceSupportedRegions(),
 			"ztc_workload_groups":             dataSourceWorkloadGroup(),
+			"ztc_dns_gateway":                dataSourceDNSGateway(),
 		},
 	}
 

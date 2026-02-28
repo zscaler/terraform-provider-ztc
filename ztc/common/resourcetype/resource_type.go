@@ -12,4 +12,5 @@ const (
 	DNSForwardingGateway  = "ztc_dns_forwarding_gateway"
 	LocationTemplate      = "ztc_location_template"
 	ProvisioningURL       = "ztc_provisioning_url"
+	DNSGateway            = "ztc_dns_gateway"
 )
