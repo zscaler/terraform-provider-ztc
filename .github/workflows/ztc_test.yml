@@ -70,6 +70,14 @@ jobs:
       - name: Run Unit Tests
         run: make test-unit
 
+      # Acceptance tests (TF_ACC) require terraform on PATH; otherwise the SDK
+      # tries HashiCorp Checkpoint and can fail behind strict egress/timeouts.
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.14.6"
+          terraform_wrapper: false
+
       - name: Run tests with retry on Ubuntu
         uses: nick-fields/retry@v4
         with:
