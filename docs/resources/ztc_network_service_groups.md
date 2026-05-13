@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: network_service_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-network-service-groups
-  API documentation https://help.zscaler.com/cloud-branch-connector/network-service-groups
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/network-service-group-z-resource-get-network-service-groups
   Creates and manages Network Service Groups.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/networkServiceGroups-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-network-service-groups)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/network-service-groups)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/network-service-group-z-resource-get-network-service-groups)
 
 Use the **ztc_network_service_groups** resource allows the creation and management of network service groups available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTC traffic forwarding rule.
 

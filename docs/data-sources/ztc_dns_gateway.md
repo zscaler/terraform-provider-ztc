@@ -3,10 +3,17 @@ subcategory: "DNS Gateway"
 layout: "zscaler"
 page_title: "ZTC: ztc_dns_gateway (Data Source)"
 description: |-
-  Gets details of a ZTC DNS Gateway resource.
+  Official documentation https://help.zscaler.com/cloud-branch-connector/configuring-dns-gateway
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/dns-gateway/ec-dns-gateway-z-resource-add-dns-gateway
+  Get information about DNS Forwarding Gateways.
 ---
 
-# Data Source: ztc_dns_gateway
+# ztc_dns_gateway (Data Source)
+
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways#/gateways-get)
+
+* [Official documentation](https://help.zscaler.com/cloud-branch-connector/configuring-dns-gateway)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/dns-gateway/ec-dns-gateway-z-resource-add-dns-gateway)
 
 Use the **ztc_dns_gateway** data source to get information about a DNS Gateway configuration in the Zscaler Zero Trust Cloud (ZTC) platform. This data source can be used to reference DNS Gateway resources in other Terraform resources.
 

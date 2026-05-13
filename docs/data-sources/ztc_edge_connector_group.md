@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: edge_connector_group"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-cloud-connector-groups
-  API documentation https://help.zscaler.com/cloud-branch-connector/cloud-branch-connector-groups#/ecgroup-get
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-ec-groups
   Get information about Cloud and Branch Connector Groups.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/cloud-branch-connector-groups#/ecgroup-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-cloud-connector-groups)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/cloud-branch-connector-groups#/ecgroup-get)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/cloud-branch-connector-groups/ec-group-z-resource-get-ec-groups)
 
 Use the **ztc_edge_connector_group** data source to get information about Cloud and Branch Connector Groups available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with ZTC traffic forwarding rule.
 

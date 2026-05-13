@@ -92,7 +92,7 @@ provider "ztc" {
 }
 ```
 
-**NOTE**: The `zscaler_cloud` is optional and only required when authenticating to other environments i.e `beta`
+**NOTE**: The `zscaler_cloud` is optional and only required when authenticating to other environments i.e `beta`. Notice that ONLY the value `beta` is supported.
 
 ⚠️ **WARNING:** Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control
 

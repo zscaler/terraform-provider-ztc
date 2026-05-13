@@ -60,6 +60,22 @@ func getIntFromResourceData(d *schema.ResourceData, key string) (int, bool) {
 	return val, isSet && isInt && val > 0
 }
 
+// scalarIntFromInterface normalizes Terraform ResourceData/set values into int.
+func scalarIntFromInterface(v interface{}) (int, bool) {
+	switch n := v.(type) {
+	case int:
+		return n, true
+	case int32:
+		return int(n), true
+	case int64:
+		return int(n), true
+	case float64:
+		return int(n), true
+	default:
+		return 0, false
+	}
+}
+
 func SetToIntList(d *schema.ResourceData, key string) []int {
 	setObj, ok := d.GetOk(key)
 	if !ok {

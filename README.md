@@ -3,6 +3,7 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/zscaler/terraform-provider-ztc)](https://goreportcard.com/report/github.com/zscaler/terraform-provider-ztc)
 [![codecov](https://codecov.io/gh/zscaler/terraform-provider-ztc/graph/badge.svg?token=A9J4AJS7F5)](https://codecov.io/gh/zscaler/terraform-provider-ztc)
 [![License](https://img.shields.io/github/license/zscaler/terraform-provider-ztc?color=blue)](https://github.com/zscaler/terraform-provider-ztc/blob/master/LICENSE)
+[![Automation Hub](https://img.shields.io/badge/automation-hub-blue)](https://automate.zscaler.com/docs/tools/sdk-documentation/sdk-getting-started)
 [![Zscaler Community](https://img.shields.io/badge/zscaler-community-blue)](https://community.zscaler.com/)
 
 <a href="https://terraform.io">

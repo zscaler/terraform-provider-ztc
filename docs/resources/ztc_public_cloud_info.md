@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: public_cloud_info"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account
-  API documentation https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo-post
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-z-resource-create-aws-account
   Creates a new AWS account with the provided account and region details
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo-post)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-z-resource-create-aws-account)
 
 Use the **ztc_public_cloud_info** resource allows the creates a new AWS account with the provided account and region details in the Zscaler Cloud and Branch Connector Portal.
 
@@ -24,21 +24,31 @@ data "ztc_supported_regions" "this" {
   name = "US_EAST_1"
 }
 
+
 resource "ztc_public_cloud_info" "this" {
   name       = "AWSAccount01"
   cloud_type = "AWS"
   account_details {
-    aws_account_id           = "123456789"
-    aws_role_name            = "zscaler-role"
+    aws_account_id           = "202719523534"
+    aws_role_name            = "AWS_Role_Name"
     cloud_watch_group_arn    = "DISABLED"
-    event_bus_name           = "zscaler-bus-123456-zscalerthree.net"
+    event_bus_name           = "zscaler-bus-123456789-zscalerbeta.net"
     trouble_shooting_logging = true
-    trusted_account_id       = "123456789"
+    trusted_account_id       = "644370868001"
     trusted_role             = "arn:aws:iam::123456789:role/ZscalerTagDiscoveryRole"
   }
   supported_regions {
     id = [data.ztc_supported_regions.this.id]
   }
+}
+
+resource "ztc_account_groups" "this" {
+    name        = "Group01"
+    description = "Group01"
+    cloud_type  = "AWS"
+    public_cloud_accounts {
+      id = [ztc_public_cloud_info.this.id]
+    }
 }
 ```
 
@@ -56,11 +66,6 @@ In addition to all arguments above, the following attributes are exported:
 ## Attribute Reference
 
 * `cloud_type` - (String) The cloud type. The default and mandatory value is AWS. Supported values are: `AWS`, `AZURE`, `GCP`
-
-### account_groups
-
-* `account_groups` - (List of Object) An immutable reference to account groups, which consists of ID and name.
-  * `id` - (Number) An ID that uniquely identifies an entity.
 
 ### supported_regions
 

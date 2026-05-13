@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: location_management"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-locations
-  API documentation https://help.zscaler.com/cloud-branch-connector/location-management
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/location-management/ec-location-z-resource-get-top-locations
   Get information about Location Management.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/location-management#/location-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-locations)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/location-management)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/location-management/ec-location-z-resource-get-top-locations)
 
 Use the **ztc_location_management** data source to get information about locations available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with with ZTC policies and rules.
 

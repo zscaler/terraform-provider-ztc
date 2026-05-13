@@ -118,7 +118,6 @@ func resourcePublicCloudInfo() *schema.Resource {
 					},
 				},
 			},
-			"account_groups":    setIDsSchemaTypeCustom(nil, "An immutable reference to an entity, which consists of ID, name, etc."),
 			"supported_regions": setIDsSchemaTypeCustom(nil, "Regions supported by Zscaler’s Tag Discovery Service."),
 		},
 	}
@@ -168,10 +167,6 @@ func resourcePublicCloudInfoRead(ctx context.Context, d *schema.ResourceData, me
 	_ = d.Set("name", resp.Name)
 	_ = d.Set("cloud_type", resp.CloudType)
 	_ = d.Set("external_id", resp.ExternalID)
-
-	if err := d.Set("account_groups", flattenIDExtensionsListIDs(resp.AccountGroups)); err != nil {
-		return diag.FromErr(err)
-	}
 
 	if err := d.Set("supported_regions", flattenIDSupportedRegions(resp.SupportedRegions)); err != nil {
 		return diag.FromErr(err)
@@ -233,7 +228,6 @@ func expandPublicCloudInfo(d *schema.ResourceData) public_cloud_info.PublicCloud
 		Name:             d.Get("name").(string),
 		CloudType:        d.Get("cloud_type").(string),
 		ExternalID:       d.Get("external_id").(string),
-		AccountGroups:    expandIDNameExtensionsSet(d, "account_groups"),
 		SupportedRegions: expandIDSupportedRegionsSet(d, "supported_regions"),
 		AccountDetails:   expandAccountDetails(d, "account_details"),
 	}

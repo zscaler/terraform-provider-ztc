@@ -1,5 +1,5 @@
 ---
-subcategory: "Policy Management"
+subcategory: "Traffic Forwarding Rule"
 layout: "zscaler"
 page_title: "ZTC: traffic_forwarding_rule"
 description: |-

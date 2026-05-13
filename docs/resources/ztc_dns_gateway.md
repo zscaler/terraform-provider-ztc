@@ -3,10 +3,17 @@ subcategory: "DNS Gateway"
 layout: "zscaler"
 page_title: "ZTC: ztc_dns_gateway"
 description: |-
-  Creates and manages ZTC DNS Gateway resources.
+  Official documentation https://help.zscaler.com/cloud-branch-connector/configuring-dns-gateway
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/dns-gateway/ec-dns-gateway-z-resource-add-dns-gateway
+  Get information about DNS Forwarding Gateways.
 ---
 
-# Resource: ztc_dns_gateway
+# ztc_dns_gateway (Resource)
+
+[![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways#/gateways-get)
+
+* [Official documentation](https://help.zscaler.com/cloud-branch-connector/configuring-dns-gateway)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/dns-gateway/ec-dns-gateway-z-resource-add-dns-gateway)
 
 The **ztc_dns_gateway** resource allows you to create and manage DNS Gateway configurations in the Zscaler Zero Trust Cloud (ZTC) platform.
 

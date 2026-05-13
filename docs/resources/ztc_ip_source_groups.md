@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: ip_source_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-ip-source-groups
-  API documentation https://help.zscaler.com/cloud-branch-connector/ip-source-groups
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/ip-source-group-z-resource-add-source-ip-group
   Creates and manages IP Source Groups.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/ipSourceGroups-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-ip-source-groups)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/ip-source-groups)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/ip-source-group-z-resource-add-source-ip-group)
 
 Use the **ztc_ip_source_groups** resource allows the creation and management of IP Source Groups available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTC traffic forwarding rule.
 

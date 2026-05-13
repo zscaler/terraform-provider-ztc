@@ -1,10 +1,10 @@
 ---
-subcategory: "Policy Management"
+subcategory: "Log and Control Forwarding"
 layout: "zscaler"
 page_title: "ZTC: traffic_forwarding_log_rule"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-log-and-control-forwarding
-  API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-rules
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/log-and-control-forwarding/ec-rule-z-resource-create-self-rule
   Get information about Log and Control Forwarding rules
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-management#/ecRules/ecRdr-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-log-and-control-forwarding)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-rules)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/log-and-control-forwarding/ec-rule-z-resource-create-self-rule)
 
 Use the **ztc_traffic_forwarding_log_rule** data source to get information about forwarding log rule available in the Zscaler Cloud and Branch Connector Portal.
 

@@ -1,10 +1,10 @@
 ---
-subcategory: "Policy Management"
+subcategory: "Traffic Forwarding Rule"
 layout: "zscaler"
 page_title: "ZTC: traffic_forwarding_rule"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-forwarding-rules
-  API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-rules
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-management/ec-rule-z-resource-create-rdr-rule
   Creates and manages Traffic Forwarding Rules.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-management#/ecRules/ecRdr-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-forwarding-rules)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-rules)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-management/ec-rule-z-resource-create-rdr-rule)
 
 Use the **ztc_traffic_forwarding_rule** resource allows the creation and management of traffic forwarding in the Zscaler Cloud and Branch Connector Portal.
 

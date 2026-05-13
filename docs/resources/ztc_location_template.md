@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: location_template"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-location-templates
-  API documentation https://help.zscaler.com/cloud-branch-connector/location-templates
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/location-management/location-template-z-resource-create-location-template
   Creates and manages Location Templates.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/location-management#/locationTemplate-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-location-templates)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/location-templates)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/location-management/location-template-z-resource-create-location-template)
 
 Use the **ztc_location_template**  resource allows the creation and management of location templates available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTC locations and provisioning URLs.
 

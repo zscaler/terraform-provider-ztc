@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
-	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/errorx"
 	"github.com/zscaler/zscaler-sdk-go/v3/zscaler/ztw/services/partner_integrations/account_groups"
 )
@@ -51,14 +50,13 @@ func resourceAccountGroup() *schema.Resource {
 				Computed: true,
 			},
 			"name": {
-				Type:         schema.TypeString,
-				Required:     true,
-				ValidateFunc: validation.StringLenBetween(0, 255),
+				Type:        schema.TypeString,
+				Required:    true,
+				Description: "The name of the AWS account group. Must be non-null, non-empty, unique, and 128 characters or fewer in length.",
 			},
 			"description": {
 				Type:             schema.TypeString,
 				Optional:         true,
-				ValidateFunc:     validation.StringLenBetween(0, 10240),
 				StateFunc:        normalizeMultiLineString,
 				DiffSuppressFunc: noChangeInMultiLineText,
 			},
@@ -67,8 +65,8 @@ func resourceAccountGroup() *schema.Resource {
 				Optional: true,
 				Default:  "AWS",
 			},
-			"public_cloud_accounts":  UIDNameSchema(),
-			"cloud_connector_groups": UIDNameSchema(),
+			"public_cloud_accounts":  setIDsSchemaTypeCustom(nil, "list of public cloud accounts to be set in the account group"),
+			"cloud_connector_groups": setIDsSchemaTypeCustom(nil, "list of public cloud connector groups to be set in the account group"),
 		},
 	}
 }
