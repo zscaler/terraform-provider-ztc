@@ -36,8 +36,54 @@ func dataSourceAccountGroup() *schema.Resource {
 				Computed:    true,
 				Description: "The cloud type. The default and manadatory value is AWS. Supported values are AWS, AZURE, GCP",
 			},
-			"cloud_connector_groups": UIDNameSchema(),
-			"public_cloud_accounts":  UIDNameSchema(),
+			"cloud_connector_groups": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"extensions": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
+			"public_cloud_accounts": {
+				Type:     schema.TypeList,
+				Computed: true,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"id": {
+							Type:     schema.TypeInt,
+							Computed: true,
+						},
+						"name": {
+							Type:     schema.TypeString,
+							Computed: true,
+						},
+						"extensions": {
+							Type:     schema.TypeMap,
+							Computed: true,
+							Elem: &schema.Schema{
+								Type: schema.TypeString,
+							},
+						},
+					},
+				},
+			},
+			// "cloud_connector_groups": UIDNameSchema(),
+			// "public_cloud_accounts":  UIDNameSchema(),
 		},
 	}
 }
@@ -74,11 +120,11 @@ func dataSourceAccountGroupRead(ctx context.Context, d *schema.ResourceData, met
 		_ = d.Set("description", resp.Description)
 		_ = d.Set("cloud_type", resp.CloudType)
 
-		if err := d.Set("public_cloud_accounts", flattenIDExtensionsListIDs(resp.PublicCloudAccounts)); err != nil {
+		if err := d.Set("public_cloud_accounts", flattenIDNameExtensions(resp.PublicCloudAccounts)); err != nil {
 			return diag.FromErr(err)
 		}
 
-		if err := d.Set("cloud_connector_groups", flattenIDExtensionsListIDs(resp.CloudConnectorGroups)); err != nil {
+		if err := d.Set("cloud_connector_groups", flattenIDNameExtensions(resp.CloudConnectorGroups)); err != nil {
 			return diag.FromErr(err)
 		}
 	} else {

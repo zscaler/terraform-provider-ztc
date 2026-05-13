@@ -782,12 +782,11 @@ func setIdNameSchemaCustom(maxItems int, description string) *schema.Schema {
 }
 
 func setIDSchemaCustom(maxItems int, description string) *schema.Schema {
-	return &schema.Schema{
+	s := &schema.Schema{
 		Type:        schema.TypeSet,
 		Optional:    true,
 		Computed:    true,
 		Description: description,
-		MaxItems:    maxItems,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
 				"id": {
@@ -803,6 +802,10 @@ func setIDSchemaCustom(maxItems int, description string) *schema.Schema {
 			},
 		},
 	}
+	if maxItems > 0 {
+		s.MaxItems = maxItems
+	}
+	return s
 }
 
 func setExtIDNameSchemaCustom(maxItems *int, description string) *schema.Schema {
@@ -913,23 +916,41 @@ func flattenIDName(workloadGroups []common.CommonIDName) []interface{} {
 
 func expandIDNameExtensionsSet(d *schema.ResourceData, key string) []common.IDNameExtensions {
 	setInterface, ok := d.GetOk(key)
-	if ok {
-		set := setInterface.(*schema.Set)
-		var result []common.IDNameExtensions
-		for _, item := range set.List() {
-			itemMap, _ := item.(map[string]interface{})
-			if itemMap != nil && itemMap["id"] != nil {
-				set := itemMap["id"].(*schema.Set)
-				for _, id := range set.List() {
-					result = append(result, common.IDNameExtensions{
-						ID: id.(int),
-					})
+	if !ok {
+		return []common.IDNameExtensions{}
+	}
+	set, ok := setInterface.(*schema.Set)
+	if !ok {
+		return []common.IDNameExtensions{}
+	}
+	var result []common.IDNameExtensions
+	for _, item := range set.List() {
+		itemMap, _ := item.(map[string]interface{})
+		if itemMap == nil || itemMap["id"] == nil {
+			continue
+		}
+
+		rawID := itemMap["id"]
+		// Pattern A: setIDsSchemaTypeCustom — `id` is a *schema.Set of ints (one outer block, many ids).
+		if idSet, ok := rawID.(*schema.Set); ok {
+			for _, idVal := range idSet.List() {
+				if idInt, ok := scalarIntFromInterface(idVal); ok {
+					result = append(result, common.IDNameExtensions{ID: idInt})
 				}
 			}
+			continue
 		}
-		return result
+
+		// Pattern B: setIDSchemaCustom / plain id+name blocks — `id` is a single int.
+		if idInt, ok := scalarIntFromInterface(rawID); ok {
+			entry := common.IDNameExtensions{ID: idInt}
+			if name, ok := itemMap["name"].(string); ok {
+				entry.Name = name
+			}
+			result = append(result, entry)
+		}
 	}
-	return []common.IDNameExtensions{}
+	return result
 }
 
 func expandZPAApplicationSegmentSet(d *schema.ResourceData, key string) []common.ZPAApplicationSegments {

@@ -245,6 +245,8 @@ func zscalerSDKV2Client(c *Config) (*zscaler.Service, error) {
 	// Start with base configuration setters
 	setters := []ztw.ConfigSetter{
 		ztw.WithCache(true),
+		ztw.WithCacheTtl(10 * time.Minute), // Cache entries for 10 minutes
+		ztw.WithCacheTti(8 * time.Minute),  // Idle timeout of 8 minutes
 		ztw.WithHttpClientPtr(http.DefaultClient),
 		ztw.WithRateLimitMaxRetries(int32(c.retryCount)),
 		ztw.WithRequestTimeout(time.Duration(c.requestTimeout) * time.Second),
@@ -310,6 +312,8 @@ func zscalerSDKV3Client(c *Config) (*zscaler.Client, error) {
 	// Start with base configuration setters
 	setters := []zscaler.ConfigSetter{
 		zscaler.WithCache(true),
+		zscaler.WithCacheTtl(10 * time.Minute), // Cache entries for 10 minutes
+		zscaler.WithCacheTti(8 * time.Minute),  // Idle timeout of 8 minutes
 		zscaler.WithHttpClientPtr(http.DefaultClient),
 		zscaler.WithRateLimitMaxRetries(int32(c.retryCount)),
 		zscaler.WithRequestTimeout(time.Duration(c.requestTimeout) * time.Second),

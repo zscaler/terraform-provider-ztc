@@ -5,44 +5,51 @@ page_title: "ZTC: account_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-amazon-web-services-account-groups
   API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-group-z-resource-create-account-group
-  Retrieves the details of AWS account groups with metadata
+  Creates an AWS account group. You can create a maximum of 128 groups in each organization.
 ---
 
-# ztc_account_groups (Data Source)
+# ztc_account_groups (Resource)
 
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/accountGroups-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-amazon-web-services-account-groups)
 * [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-group-z-resource-create-account-group)
 
-Use the **ztc_account_groups** data source to get information details of AWS account groups with metadata.
+The **ztc_account_groups** resource allows you to create and manage Account Group configurations in the Zscaler Zero Trust Cloud (ZTC) platform.
 
-## Example Usage - Retrieve by Name
+## Example Usage - Create a Account Group without Cloud Connector Group
 
 ```hcl
-data "ztc_account_groups" "example" {
-    name = "AWS_Account_Group01"
+resource "ztc_account_groups" "this" {
+    name        = "AWS_Account_Group01"
+    description = "AWS_Account_Group01"
+    cloud_type  = "AWS"
+    public_cloud_accounts {
+      id = [2815549]
+    }
 }
 ```
 
-## Example Usage - Retrieve by ID
+## Example Usage - Create a Account Group with Cloud Connector Group
 
 ```hcl
-data "ztc_account_groups" "example" {
-    id = 5458452
+resource "ztc_account_groups" "this" {
+    name        = "AWS_Account_Group01"
+    description = "AWS_Account_Group01"
+    cloud_type  = "AWS"
+    public_cloud_accounts {
+      id = [2815549]
+    }
+    cloud_connector_groups {
+      id = [2815559]
+    }
 }
 ```
 
 ## Argument Reference
 
-The following arguments are supported:
-
-* `id` - (Number) The ID of the AWS account group.
+### Required
 * `name` - (String) The name of the AWS account group. Must be non-null, non-empty, unique, and 128 characters or fewer in length.
-
-## Attribute Reference
-
-In addition to all arguments above, the following attributes are exported:
 
 ### Optional
 
@@ -52,3 +59,22 @@ In addition to all arguments above, the following attributes are exported:
   * `id` - (Number) An ID that uniquely identifies an entity.
 * `public_cloud_accounts` - (List of Object)
   * `id` - (Number) An ID that uniquely identifies an entity.
+
+## Import
+
+Zscaler offers a dedicated tool called Zscaler-Terraformer to allow the automated import of ZTC configurations into Terraform-compliant HashiCorp Configuration Language.
+[Visit](https://github.com/zscaler/zscaler-terraformer)
+
+**ztc_account_groups** can be imported by using `<GROUP_ID>` or `<GROUP_NAME>` as the import ID.
+
+For example:
+
+```shell
+terraform import ztc_account_groups.example <gateway_id>
+```
+
+or
+
+```shell
+terraform import ztc_account_groups.example <gateway_name>
+```

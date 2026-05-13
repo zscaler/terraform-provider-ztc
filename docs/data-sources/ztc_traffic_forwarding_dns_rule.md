@@ -1,10 +1,10 @@
 ---
-subcategory: "Policy Management"
+subcategory: "DNS Control Forwarding Rule"
 layout: "zscaler"
 page_title: "ZTC: traffic_forwarding_dns_rule"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-dns-policies
-  API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-rules
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/dns-control-forwarding-rule/ec-rule-z-resource-create-ec-dns-forwarding-rule
   Get information about Traffic Forwarding DNS rules
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-management#/ecRules/ecRdr-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-dns-policies)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/about-dns-policies)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/dns-control-forwarding-rule/ec-rule-z-resource-create-ec-dns-forwarding-rule)
 
 Use the **ztc_traffic_forwarding_dns_rule** data source to get information about forwarding dns rule available in the Zscaler Cloud and Branch Connector Portal.
 

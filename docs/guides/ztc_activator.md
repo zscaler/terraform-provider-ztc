@@ -5,7 +5,7 @@ page_title: "ZTC Config Activation"
 subcategory: "Activation"
 ---
 
-# ZIA Activator Configuration
+# ZTC Activator Configuration
 
 ```go
 package main
@@ -32,7 +32,7 @@ func getEnvVarOrFail(k string) string {
 }
 
 func main() {
-	log.Printf("[INFO] Initializing ZTW activation client")
+	log.Printf("[INFO] Initializing ZTC activation client")
 
 	useLegacy := strings.ToLower(os.Getenv("ZSCALER_USE_LEGACY_CLIENT")) == "true"
 
@@ -54,7 +54,7 @@ func main() {
 			ztw.WithZtwPassword(password),
 			ztw.WithZtwAPIKey(apiKey),
 			ztw.WithZtwCloud(cloud),
-			ztw.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztwActivator", runtime.GOOS, runtime.GOARCH)),
+			ztw.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztcActivator", runtime.GOOS, runtime.GOARCH)),
 		)
 		if err != nil {
 			log.Fatalf("Error creating ZTC configuration: %v", err)
@@ -70,15 +70,24 @@ func main() {
 		clientID := getEnvVarOrFail("ZSCALER_CLIENT_ID")
 		clientSecret := getEnvVarOrFail("ZSCALER_CLIENT_SECRET")
 		vanityDomain := getEnvVarOrFail("ZSCALER_VANITY_DOMAIN")
-		cloud := getEnvVarOrFail("ZSCALER_CLOUD")
+		// ZSCALER_CLOUD is optional: unset or empty selects the default production cloud, matching
+		// ziaActivator and provider config.go. Set it for non-production (e.g. beta).
+		cloud := strings.TrimSpace(os.Getenv("ZSCALER_CLOUD"))
+		if cloud == "" {
+			log.Printf("[INFO] ZSCALER_CLOUD is unset; using default cloud (production)")
+		}
 
-		cfg, err := zscaler.NewConfiguration(
+		opts := []zscaler.ConfigSetter{
 			zscaler.WithClientID(clientID),
 			zscaler.WithClientSecret(clientSecret),
 			zscaler.WithVanityDomain(vanityDomain),
-			zscaler.WithZscalerCloud(cloud),
 			zscaler.WithUserAgentExtra(fmt.Sprintf("(%s %s) cli/ztcActivator", runtime.GOOS, runtime.GOARCH)),
-		)
+		}
+		if cloud != "" {
+			opts = append(opts, zscaler.WithZscalerCloud(cloud))
+		}
+
+		cfg, err := zscaler.NewConfiguration(opts...)
 		if err != nil {
 			log.Fatalf("[ERROR] Failed to build OneAPI configuration: %v", err)
 		}

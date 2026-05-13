@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: ip_destination_groups"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-ip-destination-groups
-  API documentation https://help.zscaler.com/cloud-branch-connector/ip-destination-groups
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/ip-destination-group-z-resource-add-destination-ip-group
   Get information about IP Destination Groups.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/ipDestinationGroups-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-ip-destination-groups)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/ip-destination-groups)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/ip-destination-group-z-resource-add-destination-ip-group)
 
 Use the **ztc_ip_destination_groups** data source to get information about IP Destination Groups available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with with ZTC traffic forwarding rule.
 

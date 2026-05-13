@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: supported_regions"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account
-  API documentation https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo/supportedRegions-getpublicCloudInfo-get
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-z-resource-get-aws-supported-regions
   Retrieves a list of AWS regions supported for workload discovery settings (WDS).
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo/supportedRegions-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo/supportedRegions-get)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-z-resource-get-aws-supported-regions)
 
 Use the **ztc_supported_regions** data source to get information details AWS regions supported for workload discovery settings (WDS). This data source can be used when configuring the attribute `supported_regions` in the resource `ztc_public_cloud_info`
 

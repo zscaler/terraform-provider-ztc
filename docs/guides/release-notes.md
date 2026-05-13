@@ -12,9 +12,22 @@ description: |-
 Track all ZTC Terraform provider's releases. New resources, features, and bug fixes will be tracked here.
 
 ---
-``Last updated: v0.1.8``
+``Last updated: v0.1.9``
 
 ---
+
+## 0.1.9 (May 13, 2026)
+
+### Notes
+
+- Release date: **(May 13, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Enhancements
+
+- [PR #38](https://github.com/zscaler/terraform-provider-ztc/pull/38) - Updated `ztcActivator` OneAPI startup so `ZSCALER_CLOUD` is optional (unset uses the default production cloud).
+
+- [PR #38](https://github.com/zscaler/terraform-provider-ztc/pull/38) - Fixed resource and datasource `ztc_account_groups` to allow for proper simplified configuration.
 
 ## 0.1.8 (February 27, 2026)
 

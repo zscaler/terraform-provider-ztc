@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: provisioning_url"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-provisioning-urls
-  API documentation https://help.zscaler.com/cloud-branch-connector/provisioning-urls
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/provisioning/ec-prov-url-z-resource-get-prov-urls
   Creates and manages Provisioning URLs.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/provisioning#/provUrl-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-provisioning-urls)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/provisioning-urls)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/provisioning/ec-prov-url-z-resource-get-prov-urls)
 
 Use the **ztc_provisioning_url** resource allows the creation and management of provisioning URLs available in the Zscaler Cloud and Branch Connector Portal.
 

@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: public_cloud_info"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account
-  API documentation https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo-get
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-z-resource-create-aws-account
   Retrieves the list of AWS accounts with metadata.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/adding-amazon-web-services-account)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/partner-integrations#/publicCloudInfo-get)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/partner-integrations/aws-account-z-resource-create-aws-account)
 
 Use the **ztc_public_cloud_info** data source to get information details of AWS accounts with metadata, including account details, supported regions, region status, and associated account groups.
 

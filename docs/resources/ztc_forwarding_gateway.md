@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: forwarding_gateway"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding
-  API documentation https://help.zscaler.com/cloud-branch-connector/forwarding-gateways
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/forwarding-gateways/ec-gateway-z-resource-add-gateway
   Creates and manages ZTC Forwarding Gateways.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways#/gateways-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-traffic-forwarding)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/forwarding-gateways)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/forwarding-gateways/ec-gateway-z-resource-add-gateway)
 
 Use the **ztc_forwarding_gateway** resource allows the creation and management of ZIA and Log Forwarding gateways available in the Zscaler Cloud and Branch Connector Portal. This resource can then be associated with ZTC traffic forwarding rule.
 

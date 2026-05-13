@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: network_services"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-network-services
-  API documentation https://help.zscaler.com/cloud-branch-connector/network-services
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/network-service-resource-add-custom-network-service
   Get information about Network Services.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/policy-resources#/networkServices-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-network-services)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/network-services)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/policy-resources/network-service-resource-add-custom-network-service)
 
 Use the **ztc_network_services** data source to get information about network services available in the Zscaler Cloud and Branch Connector Portal. This data source can then be associated with with ZTC traffic forwarding rule.
 

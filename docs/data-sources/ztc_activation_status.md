@@ -4,7 +4,7 @@ layout: "zscaler"
 page_title: "ZTC: activation_status"
 description: |-
   Official documentation https://help.zscaler.com/cloud-branch-connector/about-activation
-  API documentation https://help.zscaler.com/cloud-branch-connector/activation-status
+  API documentation https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/activation/ec-activate-z-resource-activate
   Get information about Activation Status.
 ---
 
@@ -13,7 +13,7 @@ description: |-
 [![General Availability](https://img.shields.io/badge/Lifecycle%20Stage-General%20Availability-%2345c6e8)](https://help.zscaler.com/cloud-branch-connector/activation#/ecAdminActivateStatus-get)
 
 * [Official documentation](https://help.zscaler.com/cloud-branch-connector/about-activation)
-* [API documentation](https://help.zscaler.com/cloud-branch-connector/activation-status)
+* [API documentation](https://automate.zscaler.com/docs/api-reference-and-guides/api-reference/zcloudconnector/activation/ec-activate-z-resource-activate)
 
 Use the **ztc_activation_status** data source to get information about the current activation status in the Zscaler Cloud and Branch Connector Portal. This data source provides details about organization and admin activation status.
 

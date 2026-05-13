@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        goVersion: ["1.24"]
+        goVersion: ["1.25"]
         environment:
           - ZTC_ZS3
     environment: ${{ matrix.environment }}
@@ -70,11 +70,19 @@ jobs:
       - name: Run Unit Tests
         run: make test-unit
 
-      - name: Run tests with retry on Ubuntu
-        uses: nick-fields/retry@v3
+      # Acceptance tests (TF_ACC) require terraform on PATH; otherwise the SDK
+      # tries HashiCorp Checkpoint and can fail behind strict egress/timeouts.
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
         with:
-          max_attempts: 3
-          timeout_minutes: 120
+          terraform_version: "1.14.6"
+          terraform_wrapper: false
+
+      - name: Run tests with retry on Ubuntu
+        uses: nick-fields/retry@v4
+        with:
+          max_attempts: 1
+          timeout_minutes: 45
           command: |
             make sweep
             make test:integration:ztc
@@ -88,14 +96,14 @@ jobs:
           ZTC_ACC_TEST_FORCE_SWEEPERS: ${{ secrets.ZTC_ACC_TEST_FORCE_SWEEPERS }}
 
       - name: Publish test coverage
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./coverage.out
           fail_ci_if_error: true
 
       - name: Upload coverage reports to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: zscaler/terraform-provider-ztc
