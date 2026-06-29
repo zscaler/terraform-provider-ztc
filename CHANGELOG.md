@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.2.0 (June 29, 2026)
+
+### Notes
+
+- Release date: **(June 29, 2026)**
+- Supported Terraform version: **v1.x**
+
+### Enhancements
+
+- [PR #45](https://github.com/zscaler/terraform-provider-ztc/pull/45) - Fixed `ztc_edge_connector_group` panic with attribute type `ec_instances.0.dns_ip`
+
 ## 0.1.9 (May 13, 2026)
 
 ### Notes

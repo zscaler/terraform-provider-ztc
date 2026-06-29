@@ -652,8 +652,9 @@ func ecGroupSchemaData() map[string]*schema.Schema {
 									Computed: true,
 								},
 								"dns_ip": {
-									Type:     schema.TypeString,
+									Type:     schema.TypeList,
 									Computed: true,
+									Elem:     &schema.Schema{Type: schema.TypeString},
 								},
 								"service_nw": NWSchema(),
 								"virtual_nw": NWSchema(),
