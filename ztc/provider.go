@@ -11,8 +11,6 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/validation"
 )
 
-var apiSemaphore chan struct{}
-
 func ZTCProvider() *schema.Provider {
 	p := &schema.Provider{
 		Schema: map[string]*schema.Schema{
@@ -81,6 +79,16 @@ func ZTCProvider() *schema.Provider {
 				Optional:    true,
 				Description: "Enable ZTW API via Legacy Mode",
 			},
+			"skip_credentials_validation": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Description: "Skip credentials validation and API client initialization entirely. " +
+					"Intended for configurations where every ztc_* resource and data source is conditionally disabled " +
+					"(e.g., count = 0) and no API call will ever be made, such as multi-environment deployments where " +
+					"Zscaler is not present in every environment. Any resource or data source that does attempt an API " +
+					"call will fail with an explanatory error. Can also be sourced from the " +
+					"ZSCALER_SKIP_CREDENTIALS_VALIDATION environment variable.",
+			},
 			"http_proxy": {
 				Type:        schema.TypeString,
 				Optional:    true,
@@ -90,18 +98,20 @@ func ZTCProvider() *schema.Provider {
 				Type:             schema.TypeInt,
 				Optional:         true,
 				ValidateDiagFunc: intAtMost(100),
-				Description:      "maximum number of retries to attempt before erroring out.",
+				Description:      "Maximum number of times a rate-limited or transiently failing request is retried before the operation fails. Default: 30. Maximum: 100. Does not affect request throughput; lowering it only makes runs fail sooner under sustained rate limiting.",
 			},
 			"parallelism": {
-				Type:        schema.TypeInt,
-				Optional:    true,
-				Description: "Number of concurrent requests to make within a resource where bulk operations are not possible. Take note of https://help.zscaler.com/oneapi/understanding-rate-limiting.",
+				Type:       schema.TypeInt,
+				Optional:   true,
+				Deprecated: "This attribute no longer has any effect and will be removed in a future major release. Remove it from the provider block. API rate limits are handled automatically: the provider honours the Retry-After header returned on a 429 response and retries transparently.",
+				Description: "Deprecated and ignored. Previously limited the number of concurrent API requests. " +
+					"Rate limiting is now handled automatically and this attribute has no effect.",
 			},
 			"request_timeout": {
 				Type:             schema.TypeInt,
 				Optional:         true,
 				ValidateDiagFunc: intBetween(0, 300),
-				Description:      "Timeout for single request (in seconds) which is made to Zscaler, the default is `0` (means no limit is set). The maximum value can be `300`.",
+				Description:      "Timeout in seconds for a single HTTP request to the Zscaler API. Default: 0, which selects the SDK's built-in 60-second timeout. Accepted values: 0-300. Does not affect request throughput.",
 			},
 		},
 
@@ -148,6 +158,16 @@ func ZTCProvider() *schema.Provider {
 		},
 	}
 
+	// Guard every resource and data source against the inert client returned
+	// when skip_credentials_validation is enabled, so an accidental API call
+	// yields a descriptive error instead of a nil-pointer panic.
+	for _, r := range p.ResourcesMap {
+		guardResourceAgainstInertClient(r)
+	}
+	for _, ds := range p.DataSourcesMap {
+		guardResourceAgainstInertClient(ds)
+	}
+
 	p.ConfigureContextFunc = func(_ context.Context, d *schema.ResourceData) (interface{}, diag.Diagnostics) {
 		terraformVersion := p.TerraformVersion
 		if terraformVersion == "" {
@@ -155,18 +175,20 @@ func ZTCProvider() *schema.Provider {
 			// We can therefore assume that if it's missing it's 0.10 or 0.11
 			terraformVersion = "0.11+compatible"
 		}
-		r, err := providerConfigure(d, terraformVersion)
-		if err != nil {
+		r, diags := providerConfigure(d, terraformVersion)
+		if diags.HasError() {
 			return nil, diag.Diagnostics{
 				diag.Diagnostic{
 					Severity:      diag.Error,
 					Summary:       "failed configuring the provider",
-					Detail:        fmt.Sprintf("error:%v", err),
+					Detail:        fmt.Sprintf("error:%v", diags),
 					AttributePath: cty.Path{},
 				},
 			}
 		}
-		return r, nil
+		// Pass through non-error diagnostics (e.g. the
+		// skip_credentials_validation warning).
+		return r, diags
 	}
 
 	return p
@@ -179,6 +201,24 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 	config := NewConfig(d)
 	config.TerraformVersion = terraformVersion
 
+	// Skip mode: never construct the SDK client. The OneAPI SDK authenticates
+	// inside its constructor, so building a client without valid credentials
+	// would fail at configure time even when no resource will ever call the
+	// API. Return an inert client instead; the CRUD guards installed in
+	// ZTCProvider turn any actual API use into a descriptive error.
+	if config.skipCredentialsValidation {
+		log.Printf("[WARN] skip_credentials_validation is enabled; ZTC API client was not initialized")
+		return &Client{skipCredentialsValidation: true}, diag.Diagnostics{
+			diag.Diagnostic{
+				Severity: diag.Warning,
+				Summary:  "ZTC credentials were not validated",
+				Detail: "skip_credentials_validation is enabled, so the ZTC API client was not initialized. " +
+					"Any ztc_* resource or data source that attempts an API call will fail. " +
+					"This mode is intended for configurations where all ZTC resources are conditionally disabled (e.g., count = 0).",
+			},
+		}
+	}
+
 	// Load the correct SDK client (prioritizing V3)
 	if diags := config.loadClients(); diags.HasError() {
 		return nil, diags
@@ -190,14 +230,61 @@ func providerConfigure(d *schema.ResourceData, terraformVersion string) (interfa
 		return nil, diag.Errorf("failed to configure Zscaler client: %v", err)
 	}
 
-	// Initialize the global semaphore based on the configured parallelism
-	if config.parallelism > 0 {
-		apiSemaphore = make(chan struct{}, config.parallelism)
-	} else {
-		apiSemaphore = make(chan struct{}, 1)
+	return client, nil
+}
+
+// inertClientDiag is the error returned when a resource or data source is
+// evaluated while the provider is in skip_credentials_validation mode.
+func inertClientDiag() diag.Diagnostics {
+	return diag.Diagnostics{
+		diag.Diagnostic{
+			Severity: diag.Error,
+			Summary:  "ZTC provider was configured with skip_credentials_validation",
+			Detail: "This resource or data source attempted a ZTC API call, but the provider was configured with " +
+				"skip_credentials_validation = true (or ZSCALER_SKIP_CREDENTIALS_VALIDATION=true), so no API client exists. " +
+				"Either provide valid credentials and remove skip_credentials_validation, or ensure every ztc_* resource " +
+				"and data source is disabled (e.g., count = 0) in this configuration.",
+		},
+	}
+}
+
+// isInertClient reports whether the provider meta is the inert client created
+// in skip_credentials_validation mode.
+func isInertClient(meta interface{}) bool {
+	client, ok := meta.(*Client)
+	return ok && client.skipCredentialsValidation
+}
+
+// guardResourceAgainstInertClient wraps a resource's CRUD and import
+// functions so that, in skip_credentials_validation mode, they return a
+// descriptive error instead of dereferencing the nil SDK service.
+func guardResourceAgainstInertClient(r *schema.Resource) {
+	wrap := func(f func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics) func(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {
+		if f == nil {
+			return nil
+		}
+		return func(ctx context.Context, d *schema.ResourceData, meta interface{}) diag.Diagnostics {
+			if isInertClient(meta) {
+				return inertClientDiag()
+			}
+			return f(ctx, d, meta)
+		}
 	}
 
-	return client, nil
+	r.CreateContext = wrap(r.CreateContext)
+	r.ReadContext = wrap(r.ReadContext)
+	r.UpdateContext = wrap(r.UpdateContext)
+	r.DeleteContext = wrap(r.DeleteContext)
+
+	if r.Importer != nil && r.Importer.StateContext != nil {
+		importer := r.Importer.StateContext
+		r.Importer.StateContext = func(ctx context.Context, d *schema.ResourceData, meta interface{}) ([]*schema.ResourceData, error) {
+			if isInertClient(meta) {
+				return nil, fmt.Errorf("cannot import: the ZTC provider was configured with skip_credentials_validation, so no API client exists")
+			}
+			return importer(ctx, d, meta)
+		}
+	}
 }
 
 func resourceFuncNoOp(context.Context, *schema.ResourceData, interface{}) diag.Diagnostics {

@@ -12,9 +12,29 @@ description: |-
 Track all ZTC Terraform provider's releases. New resources, features, and bug fixes will be tracked here.
 
 ---
-``Last updated: v0.2.0``
+``Last updated: v0.2.1``
 
 ---
+
+## 0.2.1 (November 20, 2026)
+
+### Notes
+
+- Supported Terraform version: **v1.x**
+
+### Features
+
+- [PR #58](https://github.com/zscaler/terraform-provider-ztc/pull/58) - Added the provider attribute `skip_credentials_validation` (env var `ZSCALER_SKIP_CREDENTIALS_VALIDATION`). When enabled, the provider skips credential validation and API client initialization so that configurations where every `ztc_*` resource and data source is conditionally disabled (e.g., `count = 0`) can plan and apply without credentials — e.g., multi-environment deployments where Zscaler is not present in every environment. A warning is emitted at configure time, and any resource or data source that does attempt an API call fails with an explanatory error instead of a panic. See ([ZPA Issue #684](https://github.com/zscaler/terraform-provider-zpa/issues/684)) for the motivating use case.
+
+### Bug Fixes
+
+- [PR #58](https://github.com/zscaler/terraform-provider-ztc/pull/58) - The `ztc_network_services` and `ztc_network_service_groups` data sources, and import of the `ztc_network_services` and `ztc_network_service_groups` resources by name, no longer fail with `INVALID_INPUT_ARGUMENT` `Invalid Page Size 1,000`. The API now rejects a page size of 1,000, which the lookups requested. Both lookups now read the whole list, 127 items per page, so they also find services and groups beyond the first page.
+- [PR #58](https://github.com/zscaler/terraform-provider-ztc/pull/58) - Creating, updating or deleting many objects of the same type no longer triggers waves of rejected requests or long waits. Requests now follow the rate limits documented for each method and resource (for most resources, 2 reads and 1 create, update or delete per second, and 1,000 reads and 400 writes per hour). Before, several requests to the same resource were sent at once, the API rejected most of them, and the rejected requests counted toward the hourly limit. Requests that the API rejects no longer count toward that limit.
+- [PR #58](https://github.com/zscaler/terraform-provider-ztc/pull/58) - Upgraded to Zscaler-SDK-GO v3.8.62.
+
+### Documentation
+
+- [PR #58](https://github.com/zscaler/terraform-provider-ztc/pull/58) - Corrected the provider argument reference for `max_retries` (the default is `30`, not `5`) and `request_timeout` (the default is `0`, which selects the SDK's built-in 60-second timeout rather than disabling the timeout), and added a note explaining that rate limiting requires no configuration, that these are the only supported tuning attributes, that neither affects request throughput, and that Zscaler Go SDK environment variables such as `ZSCALER_CLIENT_RATE_LIMIT_MAX_RETRIES` are not part of the provider's configuration and are ignored.
 
 ## 0.2.0 (June 29, 2026)
 
