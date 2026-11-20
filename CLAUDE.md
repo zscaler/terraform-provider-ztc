@@ -43,9 +43,13 @@ service := zClient.Service
 
 `private_key` is an alternate OneAPI credential path (conflicts with `client_secret` in schema).
 
-### Global request semaphore
+### Request concurrency — do not add a throttle
 
-`provider.go` allocates **`apiSemaphore`** from configured **`parallelism`** (default channel depth 1) to throttle concurrent API usage where bulk operations are not available. Respect existing patterns when adding resources that coordinate many calls.
+`provider.go` previously allocated a global `apiSemaphore` from a `parallelism` provider argument. It was never acquired by any resource (dead code) and has been removed; the `parallelism` argument is now deprecated and ignored.
+
+Do not reintroduce a global semaphore or any provider-wide concurrency throttle. Rate limiting is handled in the request layer, which honours the `Retry-After` header on a `429` and retries transparently. A global throttle is both unnecessary and harmful — it serializes unrelated resources and, for rule-based resources, defeats the batching that the order-reconciliation loop depends on.
+
+If a specific endpoint genuinely cannot tolerate concurrent writes, add a mutex keyed to that one resource type at its call site. Never a global one, and never a user-facing knob.
 
 ---
 

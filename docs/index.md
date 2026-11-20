@@ -32,7 +32,7 @@ The ZTC Terraform Provider now offers support for [OneAPI](https://help.zscaler.
 
 **NOTE** As of version v4.0.0, this Terraform provider offers backwards compatibility to the Zscaler legacy API framework. This is the recommended authentication method for organizations whose tenants are still not migrated to [Zidentity](https://help.zscaler.com/zidentity/what-zidentity).
 
-**NOTE**: Attention Government customers. OneAPI and Zidentity now support the government (FedRAMP) clouds via the unified `cloud=gov` and `cloud=govus` values. See the [OneAPI Government (FedRAMP) Cloud Environments](#oneapi-government-fedramp-cloud-environments) section below for details.
+**NOTE**: Attention Government customers. OneAPI and Zidentity support the government (FedRAMP) clouds via the unified `cloud=gov` and `cloud=govus` values, but this capability is **not yet available in a published release of this provider**. Authenticate government tenants using the legacy API framework for now. See [OneAPI Government (FedRAMP) Cloud Environments](#oneapi-government-fedramp-cloud-environments) below.
 
 ## Examples Usage - Client Secret Authentication
 
@@ -98,7 +98,7 @@ provider "ztc" {
 
 - Production Commericial Clouds: The cloud parameter `IS NOT` required.
 - Test (Beta) Commercial Clouds: `beta`
-- FedRAMP Clouds: `gov` or `govus`
+- FedRAMP Clouds: `gov` or `govus` — not yet available in a published release; see the note below
 
 ⚠️ **WARNING:** Hard-coding credentials into any Terraform configuration is not recommended, and risks secret leakage should this file be committed to public version control
 
@@ -149,7 +149,7 @@ OneAPI supports the Zscaler government (FedRAMP) clouds. These are FedRAMP-isola
 | `vanity_domain` | _(String)_ Refers to the domain name used by your organization     | `ZSCALER_VANITY_DOMAIN`  |
 | `zscaler_cloud` | _(String)_ Supported Zidentity Gov Cloud `gov` or `govus`                | `ZSCALER_CLOUD`          |
 
-**NOTE** FedRAMP cloud is only supported when upgrading to the provider version `>=v4.7.25`. Earlier versions are NOT supported.
+~> **NOTE** FedRAMP cloud support is not yet available in a published release of this provider. The latest release, `v0.2.1`, does not include it. Until a release that does is available, authenticate government tenants using the legacy client with `ztc_cloud = "zscalergov"` or `"zscalerten"`. See [Authentication - Legacy API Framework](#authentication---legacy-api-framework).
 
 For example, authenticating to the GOV environment:
 
@@ -261,10 +261,52 @@ provider "ztc" {}
 
 For details about how to retrieve your tenant Base URL and API key/token refer to the Zscaler help portal. <https://help.zscaler.com/cloud-branch-connector/getting-started-cloud-branch-connector-api>
 
-### ZTC Configuration Activation
+## ZTC Configuration Activation
 
-The ZTC platform requires every configuration to be activated. To make this process more flexible, made available a dedicated out of band CLI method described here [ztc activator](guides/ztc-activator-overview.md) or leverage the dedicated activation resource `ztc_activation_status`.
+The ZTC platform saves configuration changes in a **pending** state. A successful `terraform apply` writes the configuration to the tenant but does not put it into effect — the changes must be **activated**.
 
+Activation is a tenant-wide operation, not a per-resource one. **A single activation call publishes every pending change in the tenant**, regardless of how many resources Terraform created, updated, or deleted.
+
+### Method 1 — Out-of-band activation with the `ztcActivator` CLI (recommended)
+
+Compile the dedicated activation binary and run it once, after Terraform has finished:
+
+```bash
+terraform apply && ztcActivator
+```
+
+This is the recommended method for CI/CD pipelines and for large configurations. It issues exactly one activation call for the entire run and keeps activation timing explicitly under your control. See [ZTC Activator](guides/ztc-activator-overview.md) for build and usage details.
+
+### Method 2 — The `ztc_activation_status` resource
+
+Declare the resource and use the `depends_on` meta-argument so that it runs after the resources it should activate. Because `depends_on` cannot be inferred, **every resource whose changes must be activated has to be listed explicitly** — anything you omit may be applied after activation and left pending. In configurations built from reusable modules that list becomes difficult to maintain, so prefer Method 1 there.
+
+### API Session Timeout and Long-Running Applies
+
+As with ZIA, the platform activates pending changes when a session ends, including when an API session reaches its timeout. Refer to the [Zscaler API documentation](https://help.zscaler.com/legacy-apis/configuring-postman-rest-api-client-3) for the session behaviour of the legacy API framework.
+
+!> **IMPORTANT:** Unlike ZIA — which exposes an adjustable API session timeout of 5 to 20 minutes — **ZTC provides no way to adjust the API session lifetime**, either through this provider or through the tenant's settings. The session length is fixed by the platform and cannot be raised.
+
+This makes run duration the only lever available. A run that outlives its session will have pending changes activated part-way through, before the apply has finished writing the rest of the configuration; the provider then re-authenticates and continues, so the run does not fail, but activation has already happened at a point you did not choose. Keep individual runs short by splitting large configurations across smaller states, and prefer the out-of-band activator so that the activation you *intend* is an explicit, separate step.
+
+### Running Several Configurations Against One Tenant
+
+Splitting a large deployment across several Terraform configurations is fully supported, and the previous section recommends it as the way to keep runs short. Two operational rules apply, because a ZTC tenant has a single configuration-change lock and a single activation queue regardless of how state is split:
+
+- **Apply one configuration at a time** against a given tenant. `terraform plan` can run in parallel — reads are unaffected. In CI, key the concurrency control on the tenant. Concurrent applies surface as `EDIT_LOCK_NOT_AVAILABLE` or `Failed during enter Org barrier`; the provider retries these, so the usual symptom is a slow run rather than an error.
+- **Activate once, after the last apply** — not once per configuration. Activation publishes every pending change in the tenant, so a per-configuration call is redundant and will queue behind any other session that still has unactivated changes.
+
+~> **NOTE:** Serialising applies lengthens total pipeline time, so keep each configuration small enough that its apply finishes comfortably inside an API session. Because ZTC's session lifetime cannot be raised, this matters more here than on ZIA.
+
+## Rate Limiting
+
+The ZTC platform enforces API rate limits on a per-endpoint basis, and different endpoints have different thresholds.
+
+**You do not need to configure anything to stay within these limits.** When a limit is exceeded, the API returns an HTTP `429 Too Many Requests` response with a `Retry-After` header, and the provider waits the indicated interval and retries the request transparently. Exceeding a rate limit therefore costs a short delay rather than a failed apply, including on large bulk deployments.
+
+Run Terraform with its default settings. In particular, do not reduce Terraform's `-parallelism`: the flag applies to the entire run and cannot be scoped to a single resource type or endpoint, so lowering it slows every resource in the configuration. Rule-based resources are affected most, because rule placement is reconciled per batch of concurrently created rules — at a reduced parallelism each rule waits out a full reconciliation cycle on its own, which can turn an apply that would finish in minutes into one that takes hours.
+
+Note that rate limiting is distinct from the tenant-wide write lock. An `HTTP 409` response reporting `EDIT_LOCK_NOT_AVAILABLE` or `Failed during enter Org barrier` indicates that another session is modifying the configuration, not that a rate limit was exceeded. See [Running Several Configurations Against One Tenant](#running-several-configurations-against-one-tenant).
 
 ## Argument Reference - OneAPI
 
@@ -284,11 +326,13 @@ Before starting with this Terraform provider you must create an API Client in th
 
 * `http_proxy` - (Optional) This is a custom URL endpoint that can be used for unit testing or local caching proxies. Can also be sourced from the `ZSCALER_HTTP_PROXY` environment variable.
 
-* `parallelism` - (Optional) Number of concurrent requests to make within a resource where bulk operations are not possible. The provider creates a worker pool of this size to serialize API calls. The default is `1`. [Learn More](https://help.zscaler.com/oneapi/understanding-rate-limiting)
+~> **Rate limiting requires no configuration.** The provider enforces the documented Zscaler API rate limits on the client side and, when a limit is reached, waits out the `Retry-After` interval returned by the API before retrying automatically. `max_retries` and `request_timeout` are the only tuning attributes the provider supports: they bound how long a failing request is retried and how long a single request may take. Neither changes request throughput, so lowering them cannot make `plan` or `apply` faster. Environment variables belonging to the Zscaler Go SDK (for example `ZSCALER_CLIENT_RATE_LIMIT_MAX_RETRIES` or `ZSCALER_CLIENT_REQUEST_TIMEOUT`) are **not** part of the provider's configuration and are ignored.
 
-* `max_retries` - (Optional) Maximum number of retries to attempt before returning an error, the default is `5`.
+* `max_retries` - (Optional) Maximum number of times a rate-limited or transiently failing request is retried before the operation fails. Default: `30`. Maximum: `100`. Each retry waits out the interval reported by the API, so raising it costs nothing when rate limits are not being reached; lowering it only makes runs fail sooner under sustained rate limiting.
 
-* `request_timeout` - (Optional) Timeout for single request (in seconds) which is made to Zscaler, the default is `0` (means no limit is set). The maximum value can be `300`.
+* `request_timeout` - (Optional) Timeout in seconds for a single HTTP request to the Zscaler API. Default: `0`, which selects the SDK's built-in 60-second timeout. Accepted values: `0`-`300`. Raise it only if individual requests are timing out.
+
+* `skip_credentials_validation` - (Optional) When set to `true`, the provider skips credential validation and does not initialize the API client. Can also be sourced from the `ZSCALER_SKIP_CREDENTIALS_VALIDATION` environment variable. This is intended for configurations where the ZTC provider is declared but every `ztc_*` resource and data source is conditionally disabled (e.g., `count = 0`) — such as multi-environment deployments where Zscaler is not present in every environment. With this flag enabled, `terraform plan`/`apply` succeeds with a warning even when no credentials are supplied; any resource or data source that does attempt an API call fails with an explanatory error. Default: `false`.
 
 * `username` - (Optional) Administrator account used when authenticating to the legacy Zscaler API framework. Can also be sourced from the `ZTC_USERNAME` environment variable.
 

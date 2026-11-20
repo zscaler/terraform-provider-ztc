@@ -245,7 +245,7 @@ In addition to all arguments above, the following attributes are exported:
 ### Optional
 
 * `description` - (String) Additional information about the forwarding rule.
-* `forward_method` - (String) The type of traffic forwarding method selected from the available options (e.g., DIRECT, ZIA, ECZPA, DROP, LOCAL_SWITCH).
+* `forward_method` - (String) The type of traffic forwarding method selected from the available options (e.g., `DIRECT`, `ZIA`, `ECZPA`, `DROP`, `LOCAL_SWITCH`).
 * `state` - (String) Indicates whether the forwarding rule is enabled or disabled.
 * `order` - (Number) The order of execution for the forwarding rule order.
 * `rank` - (Number) Admin rank assigned to the forwarding rule.

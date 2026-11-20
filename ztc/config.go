@@ -22,24 +22,26 @@ import (
 type (
 	// Config contains our provider schema values and Zscaler clients.
 	Config struct {
-		clientID           string
-		clientSecret       string
-		vanityDomain       string
-		cloud              string
-		privateKey         string
-		httpProxy          string
-		retryCount         int
-		parallelism        int
-		backoff            bool
-		minWait            int
-		maxWait            int
-		logLevel           int
-		requestTimeout     int
-		useLegacyClient    bool
-		zscalerSDKClientV3 *zscaler.Client
-		logger             hclog.Logger
-		TerraformVersion   string // New field for Terraform version
-		ProviderVersion    string // New field for Provider version
+		clientID        string
+		clientSecret    string
+		vanityDomain    string
+		cloud           string
+		privateKey      string
+		httpProxy       string
+		retryCount      int
+		logLevel        int
+		requestTimeout  int
+		useLegacyClient bool
+		// skipCredentialsValidation disables SDK client construction entirely.
+		// The OneAPI SDK performs an OAuth handshake inside its constructor,
+		// so "skipping validation" means never building the client. Resources
+		// receive an inert *Client and fail with a descriptive error if they
+		// attempt an API call.
+		skipCredentialsValidation bool
+		zscalerSDKClientV3        *zscaler.Client
+		logger                    hclog.Logger
+		TerraformVersion          string // New field for Terraform version
+		ProviderVersion           string // New field for Provider version
 
 		// Options for Legacy V2 SDK
 		Username   string
@@ -52,16 +54,17 @@ type (
 
 type Client struct {
 	Service *zscaler.Service
+	// skipCredentialsValidation marks this client as inert: the provider was
+	// configured with skip_credentials_validation and Service is nil. Every
+	// resource/data source CRUD function is wrapped (see ZTCProvider) to
+	// return a descriptive error instead of dereferencing the nil Service.
+	skipCredentialsValidation bool
 }
 
 func NewConfig(d *schema.ResourceData) *Config {
 	// defaults
 	config := Config{
-		backoff:        true,
-		minWait:        30,
-		maxWait:        300,
 		retryCount:     30,
-		parallelism:    1,
 		logLevel:       int(hclog.Error),
 		requestTimeout: 0,
 	}
@@ -78,6 +81,12 @@ func NewConfig(d *schema.ResourceData) *Config {
 		config.useLegacyClient = val.(bool)
 	} else if os.Getenv("ZSCALER_USE_LEGACY_CLIENT") != "" {
 		config.useLegacyClient = strings.ToLower(os.Getenv("ZSCALER_USE_LEGACY_CLIENT")) == "true"
+	}
+
+	if val, ok := d.GetOk("skip_credentials_validation"); ok {
+		config.skipCredentialsValidation = val.(bool)
+	} else if os.Getenv("ZSCALER_SKIP_CREDENTIALS_VALIDATION") != "" {
+		config.skipCredentialsValidation = strings.ToLower(os.Getenv("ZSCALER_SKIP_CREDENTIALS_VALIDATION")) == "true"
 	}
 
 	if val, ok := d.GetOk("client_id"); ok {
@@ -145,26 +154,6 @@ func NewConfig(d *schema.ResourceData) *Config {
 
 	if val, ok := d.GetOk("max_retries"); ok {
 		config.retryCount = val.(int)
-	}
-
-	if val, ok := d.GetOk("parallelism"); ok {
-		config.parallelism = val.(int)
-	}
-
-	if val, ok := d.GetOk("backoff"); ok {
-		config.backoff = val.(bool)
-	}
-
-	if val, ok := d.GetOk("min_wait_seconds"); ok {
-		config.minWait = val.(int)
-	}
-
-	if val, ok := d.GetOk("max_wait_seconds"); ok {
-		config.maxWait = val.(int)
-	}
-
-	if val, ok := d.GetOk("log_level"); ok {
-		config.logLevel = val.(int)
 	}
 
 	if val, ok := d.GetOk("request_timeout"); ok {
